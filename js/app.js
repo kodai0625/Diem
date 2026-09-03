@@ -30,6 +30,18 @@
     toastTimer = setTimeout(function () { t.hidden = true; }, 1900);
   }
 
+  /** いま効いているつなぎ先（設定で入れた値が優先。無ければ config.js の値） */
+  function effectiveUrl() {
+    return (Store.meta().syncUrl || (global.APP && APP.syncUrl) || '').trim();
+  }
+
+  var started = false;
+  function ensureStarted() {
+    if (started || !Sync.enabled()) return;
+    started = true;
+    Sync.start();
+  }
+
   /* ---------- 同期の帯 ---------- */
   function paintSync() {
     var el = document.getElementById('syncBar');
@@ -81,7 +93,9 @@
       + '</div>';
 
     h += '<div class="secttl">共有</div><div class="card">'
-      + '<div class="setrow"><div><div class="k">つなぎ先</div><div class="d">' + (m.syncUrl ? '設定ずみ' : '未設定（いまは端末の中だけ）') + '</div></div>'
+      + '<div class="setrow"><div><div class="k">つなぎ先</div><div class="d">'
+      + (effectiveUrl() ? (m.syncUrl ? '設定ずみ' : 'アプリに入っているものを使っています') : '未設定（いまは端末の中だけ）')
+      + '</div></div>'
       + '<button type="button" class="mini" id="s-url">直す</button></div>'
       + '<div class="setrow"><div><div class="k">合言葉（PIN）</div><div class="d">' + (m.pin ? '設定ずみ' : '未設定') + '</div></div>'
       + '<button type="button" class="mini" id="s-pin">直す</button></div>'
@@ -136,17 +150,18 @@
     });
 
     body.querySelector('#s-url').onclick = function () {
-      var v = prompt('Apps Script のウェブアプリURL（空にすると共有をやめます）', m.syncUrl || '');
+      var v = prompt('Apps Script のウェブアプリURL\n（空にすると、アプリに入っているものに戻ります。'
+        + '共有をやめるときは合言葉を空にしてください）', effectiveUrl());
       if (v === null) return;
       m.syncUrl = v.trim(); Store.saveMeta();
-      if (m.syncUrl && m.pin) tryConnect();
+      if (effectiveUrl() && m.pin) tryConnect();
       else { renderSettings(); paintSync(); }
     };
     body.querySelector('#s-pin').onclick = function () {
       var v = prompt('合言葉（PIN）', m.pin || '');
       if (v === null) return;
       m.pin = v.trim(); Store.saveMeta();
-      if (m.syncUrl && m.pin) tryConnect();
+      if (effectiveUrl() && m.pin) tryConnect();
       else { renderSettings(); paintSync(); }
     };
     body.querySelector('#s-sync').onclick = function () {
@@ -203,10 +218,11 @@
   function tryConnect() {
     var m = Store.meta();
     toast('つないでいます…');
-    Sync.test(m.syncUrl, m.pin).then(function () {
+    Sync.test(effectiveUrl(), m.pin).then(function () {
       m.since = 0; Store.saveMeta();     // つなぎ直したら最初から取り込む
       return Sync.run(true);
     }).then(function () {
+      ensureStarted();
       toast('つながりました'); renderSettings(); paintSync(); PB.Cal.render(); PB.Exp.render();
     }).catch(function (e) {
       alert('つながりませんでした：\n' + e.message); renderSettings(); paintSync();
@@ -215,16 +231,26 @@
 
   /* ---------- はじめの設定 ---------- */
   function firstRun() {
+    var askPin = !!effectiveUrl() && !Store.meta().pin;
     modal('<h2>はじめに</h2>'
       + '<div class="hint">予定を「誰の予定か」で色分けします。あとから設定で直せます</div>'
       + '<div class="f"><label>あなたの名前</label><input type="text" id="n-me" placeholder="例）こうだい"></div>'
       + '<div class="f"><label>一緒に使う人の名前</label><input type="text" id="n-you" placeholder="例）あいて"></div>'
+      + (askPin
+          ? '<div class="f"><label>合言葉（PIN）</label><input type="text" id="n-pin" placeholder="2人で決めたもの" autocapitalize="off" autocorrect="off" spellcheck="false"></div>'
+            + '<div class="hint">入れると相手と予定を分け合えます。空のままでも、この端末だけで全部使えます</div>'
+          : '')
       + '<div class="acts"><button type="button" class="go" id="n-go">はじめる</button></div>', function (root) {
         root.querySelector('#n-go').onclick = function () {
           var me = root.querySelector('#n-me').value.trim() || '自分';
           var you = root.querySelector('#n-you').value.trim() || '相手';
-          var m = Store.meta(); m.me = me; m.partner = you; Store.saveMeta();
+          var m = Store.meta(); m.me = me; m.partner = you;
+          var pinEl = root.querySelector('#n-pin');
+          var pin = pinEl ? pinEl.value.trim() : '';
+          if (pin) m.pin = pin;
+          Store.saveMeta();
           closeModal(); PB.Cal.render();
+          if (pin) tryConnect();
         };
       });
   }
@@ -263,7 +289,7 @@
     }
 
     paintSync();
-    if (Sync.enabled()) Sync.start();
+    ensureStarted();
     if (!Store.meta().me) firstRun();
   }
 
