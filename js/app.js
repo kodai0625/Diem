@@ -65,9 +65,12 @@
   }
 
   /* ---------- 画面切り替え ---------- */
+  var lastView = 'cal';   // 設定を閉じたときに戻る先
   function show(v) {
+    if (view !== 'set') lastView = view;
     view = v;
     document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('on', b.dataset.view === v); });
+    document.getElementById('setBtn').classList.toggle('on', v === 'set');
     document.querySelectorAll('.view').forEach(function (s) { s.classList.toggle('on', s.id === 'view-' + v); });
     document.getElementById('fab').hidden = (v === 'set');
     if (v === 'exp') PB.Exp.render();
@@ -278,6 +281,9 @@
 
     document.getElementById('tabs').onclick = function (e) {
       var b = e.target.closest('.tab'); if (!b) return; show(b.dataset.view);
+    };
+    document.getElementById('setBtn').onclick = function () {
+      show(view === 'set' ? lastView : 'set');
     };
     document.getElementById('fab').onclick = function () {
       if (view === 'cal') PB.Cal.add();
