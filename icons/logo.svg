@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Pair Board">
+  <defs>
+    <linearGradient id="pb-ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#406181"/>
+      <stop offset="1" stop-color="#2a3a4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="url(#pb-ground)"/>
+  <rect x="96" y="120" width="320" height="300" rx="38" fill="#f7f4ee"/>
+  <path d="M134 120 h244 a38 38 0 0 1 38 38 v34 a0 0 0 0 1 0 0 h-320 a0 0 0 0 1 0 0 v-34 a38 38 0 0 1 38 -38 z" fill="#22303d"/>
+  <rect x="161" y="92" width="30" height="76" rx="15" fill="#f7f4ee"/>
+  <rect x="321" y="92" width="30" height="76" rx="15" fill="#f7f4ee"/>
+  <rect x="132" y="240" width="168" height="46" rx="23" fill="#5b93b8"/>
+  <rect x="212" y="322" width="168" height="46" rx="23" fill="#c97f76"/>
+</svg>

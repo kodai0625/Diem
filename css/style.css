@@ -52,7 +52,11 @@ button{cursor:pointer}
 }
 .head-top{display:flex; align-items:center; gap:8px}
 .head-top .brand{flex:1; min-width:0}
-.brand{font-size:17px; font-weight:700; letter-spacing:.08em}
+.brand{
+  display:flex; align-items:center; gap:8px;
+  font-size:17px; font-weight:700; letter-spacing:.08em;
+}
+.brand .logo{flex:0 0 auto; display:block}
 .syncbar{font-size:11.5px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.14); white-space:nowrap}
 .syncbar.ok{background:rgba(120,200,140,.22)}
 .syncbar.pending{background:rgba(230,190,90,.26)}
