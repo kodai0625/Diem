@@ -64,6 +64,12 @@
     return list;
   }
 
+  /** その日の「期限が来るタスク」。自分だけの側のものとして扱う */
+  function tasksOn(dateStr) {
+    if (filter === 'shared') return [];       // 2人の予定だけを見ているときは出さない
+    return (PB.Tasks && PB.Tasks.on(dateStr)) || [];
+  }
+
   /* ---------- 月の表 ---------- */
   function renderGrid() {
     var grid = document.getElementById('grid');
@@ -84,13 +90,20 @@
       if (s === sel) cls.push('sel');
       html += '<button type="button" class="' + cls.join(' ') + '" data-date="' + s + '">';
       html += '<span class="dnum">' + d.getDate() + '</span>';
-      var show = evs.slice(0, 3);
-      show.forEach(function (e) {
+      var tks = tasksOn(s);
+      var room = 3;
+      evs.slice(0, room).forEach(function (e) {
         var c = Who.color(e.owner);
         html += '<span class="ev' + (e.scope === 'private' ? ' priv' : '') + '" style="--c:' + c + '">'
              + U.esc(e.title || '（題名なし）') + '</span>';
+        room--;
       });
-      if (evs.length > 3) html += '<span class="more">他' + (evs.length - 3) + '件</span>';
+      tks.slice(0, Math.max(0, room)).forEach(function (t) {
+        html += '<span class="ev task">' + U.esc(t.title) + '</span>';
+        room--;
+      });
+      var rest = (evs.length + tks.length) - 3;
+      if (rest > 0) html += '<span class="more">他' + rest + '件</span>';
       html += '</button>';
     }
     grid.innerHTML = html;
@@ -101,8 +114,10 @@
   function renderDay() {
     var el = document.getElementById('dayPanel');
     var evs = eventsOn(sel);
-    var html = '<div class="dayttl"><b>' + U.label(sel) + '</b><span>' + (evs.length ? evs.length + '件' : '予定なし') + '</span></div>';
-    if (!evs.length) {
+    var tks = tasksOn(sel);
+    var n = evs.length + tks.length;
+    var html = '<div class="dayttl"><b>' + U.label(sel) + '</b><span>' + (n ? n + '件' : '予定なし') + '</span></div>';
+    if (!n) {
       html += '<div class="card"><div class="empty">この日の予定はまだありません。<br>右下の ＋ から足せます</div></div>';
     } else {
       evs.forEach(function (e) {
@@ -119,6 +134,17 @@
                  : '<span class="tag">' + U.esc(e.owner || '') + '</span>')
              + '</button></div>';
       });
+    }
+    if (tks.length) {
+      tks.forEach(function (t) {
+        html += '<div class="card"><div class="row">'
+             + '<span class="bar task"></span>'
+             + '<span class="body"><span class="ttl">' + U.esc(t.title) + '</span>'
+             + '<span class="sub">期限　Task Board のタスク</span></span>'
+             + '<span class="tag task">タスク</span>'
+             + '</div></div>';
+      });
+      html += '<div class="hint" style="margin:2px 4px 0">タスクは見るだけです。直すときは Task Board を開いてください</div>';
     }
     el.innerHTML = html;
   }

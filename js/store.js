@@ -29,7 +29,9 @@
       syncUrl: '',
       outbox: [],
       lastSyncAt: 0,
-      lastTrip: ''
+      lastTrip: '',
+      taskUrl: '',      // Task Board の受け口（入れたときだけタスクを読む）
+      taskPin: ''
     };
   }
 

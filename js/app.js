@@ -108,6 +108,25 @@
       + (Sync.lastError ? '<div class="warnbox">前回うまくいきませんでした：' + U.esc(Sync.lastError) + '</div>' : '')
       + '</div>';
 
+    var T = PB.Tasks;
+    h += '<div class="secttl">Task Board のタスク</div><div class="card">'
+      + '<div class="setrow"><div><div class="k">取り込み</div><div class="d">'
+      + (T.enabled() ? '入（期限のあるタスクをカレンダーに出します）' : '切（Task Board の受け口を入れると始まります）')
+      + '</div></div><button type="button" class="mini" id="t-url">' + (T.enabled() ? '直す' : '入れる') + '</button></div>'
+      + (T.enabled()
+          ? '<div class="setrow"><div><div class="k">出ているタスク</div>'
+            + '<div class="d">期限があって、まだ終わっていないものだけ</div></div>'
+            + '<div style="display:flex;gap:8px;align-items:center"><b style="white-space:nowrap">' + T.count() + '件</b>'
+            + '<button type="button" class="mini" id="t-now">今すぐ読む</button></div></div>'
+            + '<div class="setrow"><div><div class="k">取り込みをやめる</div>'
+            + '<div class="d">溜めたタスクも消します</div></div>'
+            + '<button type="button" class="mini" id="t-off">やめる</button></div>'
+          : '')
+      + (T.lastError ? '<div class="warnbox">前回うまくいきませんでした：' + U.esc(T.lastError) + '</div>' : '')
+      + '<div class="note" style="margin-top:6px">★会社のタスクは取りに行きません（個人の分だけを名指しで読みます）。'
+      + 'タスクは相手には出ません。直すのは Task Board 側です</div>'
+      + '</div>';
+
     h += '<div class="secttl">自分だけの予定</div><div class="card">'
       + '<div class="note">「自分だけ」の予定は <b>' + priv + '件</b>。相手には見えず、サーバーにも送られません。'
       + 'その分、この端末のデータが消えると戻せません。ときどき下の「控えを書き出す」を押してください。</div>'
@@ -173,6 +192,35 @@
       Sync.run(true).then(function () {
         toast('同期しました'); renderSettings(); PB.Cal.render(); PB.Exp.render();
       }).catch(function (e) { alert('うまくいきませんでした：\n' + e.message); renderSettings(); });
+    };
+
+    var T = PB.Tasks;
+    body.querySelector('#t-url').onclick = function () {
+      var u = prompt('Task Board の受け口のURL（空にすると取り込みをやめます）', m.taskUrl || '');
+      if (u === null) return;
+      u = u.trim();
+      if (!u) { m.taskUrl = ''; m.taskPin = ''; Store.saveMeta(); T.clear(); renderSettings(); PB.Cal.render(); return; }
+      var pin = prompt('Task Board の合言葉', m.taskPin || '');
+      if (pin === null) return;
+      toast('つないでいます…');
+      T.test(u, pin).then(function () {
+        m.taskUrl = u; m.taskPin = pin.trim(); Store.saveMeta();
+        return T.run(true);
+      }).then(function () {
+        toast('タスクを読み込みました'); T.start(); renderSettings(); PB.Cal.render();
+      }).catch(function (e) { alert('つながりませんでした：\n' + e.message); renderSettings(); });
+    };
+    var tNow = body.querySelector('#t-now');
+    if (tNow) tNow.onclick = function () {
+      toast('読んでいます…');
+      T.run(true).then(function () { toast('読み込みました'); renderSettings(); PB.Cal.render(); })
+        .catch(function (e) { alert('うまくいきませんでした：\n' + e.message); renderSettings(); });
+    };
+    var tOff = body.querySelector('#t-off');
+    if (tOff) tOff.onclick = function () {
+      if (!confirm('タスクの取り込みをやめますか？\n（Task Board 側のタスクは消えません）')) return;
+      m.taskUrl = ''; m.taskPin = ''; Store.saveMeta(); T.clear();
+      renderSettings(); PB.Cal.render(); toast('やめました');
     };
 
     body.querySelector('#s-out').onclick = function () {
@@ -276,6 +324,12 @@
 
     PB.App = { modal: modal, closeModal: closeModal, toast: toast, refreshSync: refreshSync };
 
+    PB.Tasks.init(Store);
+    PB.Tasks.onData = function () {
+      PB.Cal.render();
+      if (view === 'set') renderSettings();
+    };
+
     PB.Cal.init(Store);
     PB.Exp.init(Store);
 
@@ -296,6 +350,7 @@
 
     paintSync();
     ensureStarted();
+    if (PB.Tasks.enabled()) PB.Tasks.start();
     if (!Store.meta().me) firstRun();
   }
 

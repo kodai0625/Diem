@@ -5,6 +5,7 @@
   --sun:#c0645c; --sat:#4a7a9b;
   --me:#3f6f8f; --you:#c1766f; --other:#6f8f6a;
   --accent:#3f6f8f; --danger:#b7524a; --ok:#4e8c5a; --warn:#c68a2e;
+  --task:#7a6a9c;   /* Task Board のタスク */
   --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.05);
   --on:#ffffff;   /* 色の上に乗せる文字の色 */
   --r:12px;
@@ -18,6 +19,7 @@
     --sun:#d98a80; --sat:#7fb0cf;
     --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
     --accent:#7fb0cf;
+    --task:#a99ac9;
     --on:#111619;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
   }
@@ -28,6 +30,7 @@
   --sun:#d98a80; --sat:#7fb0cf;
   --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
   --accent:#7fb0cf;
+  --task:#a99ac9;
   --on:#111619;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
 }
@@ -128,6 +131,13 @@ button{cursor:pointer}
 }
 .ev.priv{background:transparent; color:var(--c); border:1px dashed var(--c); padding:0 2px; font-weight:600}
 .more{font-size:10px; color:var(--dim); padding-left:4px}
+/* Task Board から読んだタスク（見るだけ）。予定と見分けるため、色と形を変える */
+.ev.task{
+  background:transparent; color:var(--task); border:1px solid var(--task);
+  border-left-width:3px; font-weight:600; padding:0 3px;
+}
+.bar.task{background:var(--task)}
+.tag.task{border-color:var(--task); color:var(--task)}
 
 /* ---------- その日の中身 ---------- */
 .daypanel{margin-top:12px}
