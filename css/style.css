@@ -69,7 +69,11 @@ button{cursor:pointer}
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .brand .motto i{margin-right:.5em}
-.syncbar{font-size:11.5px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.14); white-space:nowrap}
+.syncbar{
+  font-size:11px; line-height:1.15; padding:4px 8px; border-radius:10px; background:rgba(255,255,255,.14);
+  white-space:nowrap; flex:0 0 auto; display:flex; flex-direction:column; align-items:center;
+}
+.syncbar small{font-size:9.5px; opacity:.8; font-variant-numeric:tabular-nums}
 .syncbar.ok{background:rgba(120,200,140,.22)}
 .syncbar.pending{background:rgba(230,190,90,.26)}
 .syncbar.busy{background:rgba(255,255,255,.26)}

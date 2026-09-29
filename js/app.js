@@ -46,13 +46,21 @@
   function paintSync() {
     var el = document.getElementById('syncBar');
     var s = Sync.state();
-    var text = { off: '端末の中だけ', busy: '同期中…', pending: '未送信 ' + s.pending + '件', error: '送れません', ok: '同期ずみ' }[s.kind];
+    var text = { off: '端末の中だけ', busy: '同期中…', pending: '未送信', error: '送れません', ok: '同期ずみ' }[s.kind];
+    var sub = '';   // 件数と時刻は2段目に小さく（見出しの幅を空けて、ロゴと添え書きに回す）
+    if (s.kind === 'pending') sub = s.pending + '件';
     if (s.kind === 'ok' && s.at) {
       var d = new Date(s.at);
-      text = '同期ずみ ' + U.pad(d.getHours()) + ':' + U.pad(d.getMinutes());
+      sub = U.pad(d.getHours()) + ':' + U.pad(d.getMinutes());
     }
-    el.className = 'syncbar ' + s.kind;
+    el.className = 'syncbar ' + s.kind + (sub ? ' two' : '');
     el.textContent = text;
+    if (sub) {
+      var sm = document.createElement('small');
+      sm.textContent = sub;
+      el.appendChild(sm);
+    }
+    el.setAttribute('aria-label', sub ? text + ' ' + sub : text);
     el.title = s.kind === 'error' ? (Sync.lastError || '') : '';
   }
 
