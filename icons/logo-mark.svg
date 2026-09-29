@@ -1,5 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="88 112 336 316" role="img" aria-label="Pair Board">
-  <rect x="96" y="120" width="320" height="300" rx="38" fill="#f7f4ee"/>
-  <rect x="132" y="240" width="168" height="46" rx="23" fill="#5b93b8"/>
-  <rect x="212" y="322" width="168" height="46" rx="23" fill="#c97f76"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="185 285 885 650" role="img" aria-label="Pair Board">
+  <defs>
+    <linearGradient id="platinum" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#fffdf4"/>
+      <stop offset="0.38" stop-color="#e3dfd4"/>
+      <stop offset="0.72" stop-color="#c4c1b9"/>
+      <stop offset="1" stop-color="#eeeae1"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#fff0c5"/>
+      <stop offset="0.42" stop-color="#efd29a"/>
+      <stop offset="0.75" stop-color="#cba665"/>
+      <stop offset="1" stop-color="#e9ca8f"/>
+    </linearGradient>
+    </defs>
+<path d="M 700 413 H 335 C 282 413 239 455 239 508 V 785 C 239 838 282 880 335 880 H 586 C 675 880 733 829 733 741 V 664 C 733 611 693 574 638 574 H 609"
+        fill="none" stroke="url(#platinum)" stroke-width="96" stroke-linecap="butt" stroke-linejoin="round"/>
+
+  <path d="M 650 880 H 920 C 973 880 1016 838 1016 785 V 508 C 1016 455 973 413 920 413 H 697 C 611 413 556 480 556 571 V 660 C 556 719 601 728 684 728"
+        fill="none" stroke="url(#gold)" stroke-width="96" stroke-linecap="butt" stroke-linejoin="round"/>
+
+  <path d="M 613 574 C 681 574 733 615 733 681 V 740 C 733 828 675 880 586 880 H 335"
+        fill="none" stroke="url(#platinum)" stroke-width="96" stroke-linecap="butt" stroke-linejoin="round"/>
+
+  <rect x="367" y="291" width="99" height="166" rx="39" fill="url(#platinum)"/>
+  <rect x="788" y="291" width="99" height="166" rx="39" fill="url(#gold)"/>
 </svg>
