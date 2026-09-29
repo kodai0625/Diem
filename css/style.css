@@ -63,6 +63,12 @@ button{cursor:pointer}
   font-size:17px; font-weight:700; letter-spacing:.08em;
 }
 .brand .logo{flex:0 0 auto; display:block}
+.brand .brandtxt{display:flex; flex-direction:column; min-width:0}
+.brand .motto{
+  font-size:10px; font-weight:400; letter-spacing:.04em; opacity:.75;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.brand .motto i{margin-right:.5em}
 .syncbar{font-size:11.5px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.14); white-space:nowrap}
 .syncbar.ok{background:rgba(120,200,140,.22)}
 .syncbar.pending{background:rgba(230,190,90,.26)}

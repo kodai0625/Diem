@@ -1,7 +1,7 @@
 /* Diem の読み込み係
    ・いつもサーバーを先に見に行き、取れたときだけ控えを入れ替えます（つながらないときは控えを出す）
    ・res.ok を必ず見ます。見ないと、エラー画面そのものを控えてしまいます */
-var VERSION = 'diem-1b3c66d4';
+var VERSION = 'diem-fab1c9c3';
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
