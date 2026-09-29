@@ -17,20 +17,50 @@
 
   function enabled() { return !!url() && !!pin(); }
 
-  function post(payload) {
-    return fetch(url(), {
+  function wait(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+
+  /* ★Google の Apps Script は、受け口が動いたあと返事を受け取る段（script.googleusercontent.com）で、
+     ときどき返事が崩れる。6回に1回ほど「404」、ほかに「中身が空・JSON でない」「ok なのに要るものが無い」。
+     **受け口の処理（シートへの書き込み）は済んでいる**ので、少し待って2回まで送り直す（Task Board と同じ形）。
+     送り直してよいのは、書き込みが **id ごとの上書き**で、2回届いても1行のままだから（gas/コード.gs の push）。
+     2026-09-30 まで Diem には入っておらず、右上が「送れません」になったり、タスクが出なかったりした */
+  var NEED = { ping: 'now', pull: 'rows', push: 'applied' };   // 動きごとに、返事に要るもの
+
+  function explain(code) {
+    return ({
+      bad_pin: '合言葉が違います',
+      locked: 'まちがいが続いたので、しばらく止まっています（10分ほど待ってください）',
+      not_setup: '受け口の用意がまだです',
+      bad_space: '取りに行く先が違います',
+      bad_json: '送った中身が読めませんでした'
+    })[code] || (code || '断られました');
+  }
+
+  /** 受け口に送る（崩れた返事は送り直す）。Diem の同期と、Task Board のタスクの取り込みの両方で使う */
+  function request(u, payload, tries) {
+    tries = tries || 0;
+    return fetch(u, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
       redirect: 'follow'
+    }).catch(function () {
+      throw new Error('つながりませんでした（電波かURLを確かめてください）');
     }).then(function (r) { return r.text(); }).then(function (t) {
-      var obj;
-      try { obj = JSON.parse(t); }
-      catch (e) { throw new Error('返事が読めません（URLが違うかもしれません）'); }
-      if (!obj.ok) throw new Error(obj.error || '断られました');
+      var obj = null;
+      try { obj = JSON.parse(t); } catch (e) { obj = null; }
+      var need = NEED[payload.action];
+      if (obj && obj.ok && need && !(need in obj)) obj = null;   // 形が違う返事は、読めなかったのと同じに扱う
+      if (!obj) {
+        if (tries < 2) return wait(800 * (tries + 1)).then(function () { return request(u, payload, tries + 1); });
+        throw new Error('返事が読めません（3回試しました。少し待ってから、もう一度試してください）');
+      }
+      if (!obj.ok) { var e = new Error(explain(obj.error)); e.code = obj.error; throw e; }
       return obj;
     });
   }
+
+  function post(payload) { return request(url(), payload); }
 
   var Sync = {
     setStore: function (s) { Store = s; },
@@ -84,18 +114,11 @@
 
     /** つながるか確かめるだけ */
     test: function (u, p) {
-      return fetch(u.trim(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ pin: (p || '').trim(), action: 'ping' }),
-        redirect: 'follow'
-      }).then(function (r) { return r.text(); }).then(function (t) {
-        var obj;
-        try { obj = JSON.parse(t); } catch (e) { throw new Error('返事が読めません。URLがウェブアプリのものか確かめてください'); }
-        if (!obj.ok) throw new Error(obj.error === 'bad_pin' ? 'PINが違います' : (obj.error || '断られました'));
-        return obj;
-      });
+      return request((u || '').trim(), { pin: (p || '').trim(), action: 'ping' });
     },
+
+    /** ほかの受け口（Task Board）にも同じ送り方で送る */
+    request: request,
 
     start: function () {
       if (timer) clearInterval(timer);

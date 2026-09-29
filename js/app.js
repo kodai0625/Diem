@@ -119,10 +119,10 @@
       + (T.enabled()
           ? '<div class="setrow"><div><div class="k">出ているタスク</div>'
             + '<div class="d"><b>個人 ' + T.count('personal') + '件' + (T.wantWork() ? '・会社 ' + T.count('work') + '件' : '') + '</b>'
-            + '（期限があって、まだ終わっていないものだけ）</div></div>'
+            + '（やる日か期限があって、まだ終わっていないもの。やる日があればやる日、なければ期限の日に出します）</div></div>'
             + '<button type="button" class="mini" id="t-now">今すぐ読む</button></div>'
             + '<div class="setrow"><div><div class="k">会社のタスクも出す</div>'
-            + '<div class="d">入にすると、会社の側の期限つきタスクも出します（色を変えて見分けます）</div></div>'
+            + '<div class="d">入にすると、会社の側のタスクも出します（色を変えて見分けます）</div></div>'
             + '<button type="button" class="mini" id="t-work">' + (T.wantWork() ? '入' : '切') + '</button></div>'
             + '<div class="setrow"><div><div class="k">取り込みをやめる</div>'
             + '<div class="d">溜めたタスクも消します</div></div>'

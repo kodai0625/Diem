@@ -207,12 +207,23 @@
       + '</button></div>';
   }
 
+  /** タスクの「いつ」：やる日なら「やる日 13:00〜13:30」、期限の日なら「期限」 */
+  function taskWhen(t) {
+    var s = t.by === 'do' ? 'やる日' : '期限';
+    if (t.time) {
+      var h = +t.time.slice(0, 2), mi = +t.time.slice(3, 5) + (t.dur || 30);
+      s += ' ' + t.time + '〜' + U.pad((h + Math.floor(mi / 60)) % 24) + ':' + U.pad(mi % 60);
+    }
+    if (t.by === 'do' && t.due) s += '（期限 ' + U.short(t.due) + '）';
+    return s;
+  }
+
   function taskRowHtml(t) {
     var work = t.side === 'work';
     return '<div class="card"><div class="row">'
       + '<span class="bar task' + (work ? ' work' : '') + '"></span>'
       + '<span class="body"><span class="ttl">' + U.esc(t.title) + '</span>'
-      + '<span class="sub">期限　Task Board の' + (work ? '会社' : '個人') + 'のタスク</span></span>'
+      + '<span class="sub">' + U.esc(taskWhen(t)) + '　Task Board の' + (work ? '会社' : '個人') + 'のタスク</span></span>'
       + '<span class="tag task' + (work ? ' work' : '') + '">' + (work ? '会社のタスク' : 'タスク') + '</span>'
       + '</div></div>';
   }
