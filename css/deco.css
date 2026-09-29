@@ -21,6 +21,7 @@
   --head:var(--navy); --head2:var(--navy2);
   --accent:#1f3a5c; --on:#ffffff;
   --me:#3b6a8c; --you:#b8736a;
+  --shared:#34628a; --mine:#4d8a6e;
   --shadow:0 1px 1px rgba(15,29,49,.05),0 8px 24px rgba(15,29,49,.08);
 
   /* 押すもの（明るい画面は紺に金の縁、暗い画面は金） */
@@ -37,6 +38,7 @@
     --head:#070f1b; --head2:#12233b;
     --accent:#d9b877; --on:#0c1626;
     --me:#86b3d1; --you:#e29d93;
+    --shared:#86b3d1; --mine:#8cc7a8;
     --gold-lo:#d9b877;
     --shadow:0 1px 1px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.45);
     --btn-bg:var(--gold-grad); --btn-ink:#0c1626;
@@ -51,6 +53,7 @@
   --head:#070f1b; --head2:#12233b;
   --accent:#d9b877; --on:#0c1626;
   --me:#86b3d1; --you:#e29d93;
+  --shared:#86b3d1; --mine:#8cc7a8;
   --gold-lo:#d9b877;
   --shadow:0 1px 1px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.45);
   --btn-bg:var(--gold-grad); --btn-ink:#0c1626;
@@ -98,17 +101,11 @@ body{background:var(--ground), var(--paper)}
   width:8px; height:1px; margin:0 .45em 0 .4em;
   background:linear-gradient(90deg,rgba(203,166,101,.25),rgba(233,202,143,.9));
 }
-.syncbar{
-  background:rgba(255,255,255,.07); border:1px solid rgba(203,166,101,.38); color:#efe6d2;
-  font-family:var(--mincho); letter-spacing:.04em;
-}
-.syncbar small{   /* 2段目の時刻・件数は、題字と同じ欧文の書体で */
-  font-family:var(--didot); font-size:10px; letter-spacing:.06em; color:#e9ca8f; opacity:1;
-}
-.syncbar.error small,.syncbar.pending small{color:inherit}
-.syncbar.ok{background:rgba(120,200,140,.14); border-color:rgba(150,210,160,.45)}
-.syncbar.pending{background:rgba(230,190,90,.18); border-color:rgba(230,190,90,.55)}
-.syncbar.error{background:rgba(230,110,100,.22); border-color:rgba(240,140,130,.6)}
+.syncbar{background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 1px rgba(203,166,101,.55); color:#efe6d2}
+.syncbar.ok{background:rgba(120,200,140,.12); box-shadow:inset 0 0 0 1px rgba(150,210,160,.62); color:#a9dcb4}
+.syncbar.pending{background:rgba(230,190,90,.16); box-shadow:inset 0 0 0 1px rgba(233,202,143,.85); color:#f1d593}
+.syncbar.error{background:linear-gradient(180deg,#d4685c,#ad4a40); box-shadow:0 0 0 2px rgba(240,140,130,.28); color:#fff}
+.syncbar.off{color:rgba(239,230,210,.6)}
 .gear{background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 1px rgba(203,166,101,.55); color:#efe6d2}
 .gear.on{background:var(--gold-grad); color:var(--navy); box-shadow:0 0 0 2px rgba(203,166,101,.25)}
 
@@ -167,7 +164,7 @@ body{background:var(--ground), var(--paper)}
   background-image:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,0) 62%);
   box-shadow:0 1px 2px rgba(15,29,49,.18);
 }
-.bar2.priv,.bar2.task{background-image:none; box-shadow:none}
+.bar2.task{background-image:none; box-shadow:none}
 
 /* ---------- その日の中身・これから ---------- */
 .dayttl{align-items:center}

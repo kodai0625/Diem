@@ -11,8 +11,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" href="icons/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/style.css?v=159d97b8">
-<link rel="stylesheet" href="css/deco.css?v=159d97b8">
+<link rel="stylesheet" href="css/style.css?v=71a69f6c">
+<link rel="stylesheet" href="css/deco.css?v=71a69f6c">
 </head>
 <body>
 
@@ -48,7 +48,7 @@
         <span class="motto"><i>carpe diem</i>今日という日を大切に</span>
       </div>
     </div>
-    <div id="syncBar" class="syncbar" title="同期の様子"></div>
+    <button type="button" id="syncBar" class="syncbar" aria-label="同期の様子"></button>
     <button type="button" class="gear" id="setBtn" aria-label="設定">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
         <path fill="currentColor" d="M12 8.5A3.5 3.5 0 1 0 12 15.5 3.5 3.5 0 0 0 12 8.5Zm0 5.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
@@ -76,8 +76,8 @@
 
     <div class="filters" id="filters">
       <button type="button" class="chip on" data-filter="all">全部</button>
-      <button type="button" class="chip" data-filter="shared">2人の予定</button>
-      <button type="button" class="chip" data-filter="private">自分だけ</button>
+      <button type="button" class="chip" data-filter="shared"><i class="dot shared"></i>2人の予定</button>
+      <button type="button" class="chip" data-filter="private"><i class="dot mine"></i>自分だけ</button>
     </div>
 
     <div class="dow">
@@ -116,12 +116,12 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="js/config.js?v=159d97b8"></script>
-<script src="js/store.js?v=159d97b8"></script>
-<script src="js/sync.js?v=159d97b8"></script>
-<script src="js/calendar.js?v=159d97b8"></script>
-<script src="js/expense.js?v=159d97b8"></script>
-<script src="js/tasks.js?v=159d97b8"></script>
-<script src="js/app.js?v=159d97b8"></script>
+<script src="js/config.js?v=71a69f6c"></script>
+<script src="js/store.js?v=71a69f6c"></script>
+<script src="js/sync.js?v=71a69f6c"></script>
+<script src="js/calendar.js?v=71a69f6c"></script>
+<script src="js/expense.js?v=71a69f6c"></script>
+<script src="js/tasks.js?v=71a69f6c"></script>
+<script src="js/app.js?v=71a69f6c"></script>
 </body>
 </html>

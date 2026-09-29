@@ -43,24 +43,30 @@
   }
 
   /* ---------- 同期の帯 ---------- */
+  /* 印だけで見せる：同期ずみは ✓、送れない・未送信・つないでいないは ！、同期中は回る矢印。
+     言葉は押したときの知らせと、読み上げ（aria-label）で出す */
+  var SYNC_ICON = {
+    ok: '<path d="M6 12.6l4 4L18.4 8.2"/>',
+    bang: '<path d="M12 6v7.4"/><circle cx="12" cy="17.7" r="1.45" fill="currentColor" stroke="none"/>',
+    busy: '<path d="M18.6 9A7 7 0 1 0 19 13.4"/><path d="M19.2 4.6v4.6h-4.6"/>'
+  };
+  function syncWords(s) {
+    var text = { off: '端末の中だけ', busy: '同期中', pending: '未送信 ' + s.pending + '件', error: '送れません', ok: '同期ずみ' }[s.kind];
+    if (s.kind === 'ok' && s.at) {
+      var d = new Date(s.at);
+      text += ' ' + U.pad(d.getHours()) + ':' + U.pad(d.getMinutes());
+    }
+    return text;
+  }
   function paintSync() {
     var el = document.getElementById('syncBar');
     var s = Sync.state();
-    var text = { off: '端末の中だけ', busy: '同期中…', pending: '未送信', error: '送れません', ok: '同期ずみ' }[s.kind];
-    var sub = '';   // 件数と時刻は2段目に小さく（見出しの幅を空けて、ロゴと添え書きに回す）
-    if (s.kind === 'pending') sub = s.pending + '件';
-    if (s.kind === 'ok' && s.at) {
-      var d = new Date(s.at);
-      sub = U.pad(d.getHours()) + ':' + U.pad(d.getMinutes());
-    }
-    el.className = 'syncbar ' + s.kind + (sub ? ' two' : '');
-    el.textContent = text;
-    if (sub) {
-      var sm = document.createElement('small');
-      sm.textContent = sub;
-      el.appendChild(sm);
-    }
-    el.setAttribute('aria-label', sub ? text + ' ' + sub : text);
+    var text = syncWords(s);
+    el.className = 'syncbar ' + s.kind;
+    el.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor"'
+      + ' stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
+      + (s.kind === 'ok' ? SYNC_ICON.ok : s.kind === 'busy' ? SYNC_ICON.busy : SYNC_ICON.bang) + '</svg>';
+    el.setAttribute('aria-label', text);
     el.title = s.kind === 'error' ? (Sync.lastError || '') : '';
   }
 
@@ -97,7 +103,12 @@
     h += '<div class="secttl">名前と色</div><div class="card">'
       + row('自分の名前', m.me || '（未設定）', 'name-me')
       + row('相手の名前', m.partner || '（未設定）', 'name-you')
-      + '<div class="setrow"><div><div class="k">色</div><div class="d">カレンダーの帯の色</div></div>'
+      + '<div class="setrow"><div><div class="k">予定の色</div><div class="d">左が2人の予定、右が自分だけの予定</div></div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<span class="swatch" style="background:var(--shared)"></span>'
+      + '<span class="swatch" style="background:var(--mine)"></span>'
+      + '</div></div>'
+      + '<div class="setrow"><div><div class="k">人の色</div><div class="d">立替金で、自分と相手を見分ける色</div></div>'
       + '<div style="display:flex;gap:8px">'
       + '<span class="swatch" style="background:' + PB.Who.color(m.me || '自分') + '"></span>'
       + '<span class="swatch" style="background:' + PB.Who.color(m.partner || '相手') + '"></span>'
@@ -390,6 +401,15 @@
     };
     document.getElementById('setBtn').onclick = function () {
       show(view === 'set' ? lastView : 'set');
+    };
+    // 右上の印を押すと、いまの様子を言葉で出して、その場で同期する
+    document.getElementById('syncBar').onclick = function () {
+      var s = Sync.state();
+      if (s.kind === 'off') { toast('いまは端末の中だけです（設定で共有をつなげます）'); return; }
+      if (s.kind === 'busy') { toast('同期しています…'); return; }
+      toast(syncWords(s) + '　同期しています…');
+      Sync.run(true).then(function () { toast('同期しました'); })
+        .catch(function (e) { toast('送れません：' + e.message); });
     };
     document.getElementById('fab').onclick = function () {
       if (view === 'cal' || view === 'feed') PB.Cal.add();

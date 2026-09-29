@@ -57,6 +57,9 @@
     }
   };
 
+  /** 予定の色は、人ではなく「2人の予定か、自分だけか」で分ける（2026-09-30 から） */
+  function evColor(e) { return css(e.scope === 'private' ? '--mine' : '--shared'); }
+
   /* ---------- 状態 ---------- */
   var cur = U.today();
   cur = new Date(cur.getFullYear(), cur.getMonth(), 1);   // 表示している月の1日
@@ -143,7 +146,7 @@
     } else {
       var e = it.rec;
       if (e.scope === 'private') cls.push('priv');
-      style += '--c:' + Who.color(e.owner) + ';';
+      style += '--c:' + evColor(e) + ';';
       title = e.title || '（題名なし）';          // 表は題名だけ（幅が狭いので時刻は下の一覧で見せる）
     }
     if (it.contL) cls.push('contL');
@@ -196,7 +199,7 @@
 
   /* ---------- その日の中身 ---------- */
   function rowHtml(e) {
-    var c = Who.color(e.owner);
+    var c = evColor(e);
     var time = e.allDay ? '終日' : ((e.st || '') + (e.et ? '〜' + e.et : ''));
     var span = (e.end && e.end !== e.start) ? '　' + U.short(e.start) + '〜' + U.short(e.end) : '';
     var sub = time + span + (e.memo ? '　' + e.memo.replace(/\n/g, ' ') : '');
@@ -353,8 +356,8 @@
       + '<button type="button" class="go small" id="f-save">保存</button></div>'
       + '<input type="text" class="bigtitle" id="f-title" value="' + U.esc(draft.title) + '" placeholder="予定の題名" enterkeyhint="done" autocomplete="off">'
       + '<div class="seg" id="f-scope">'
-        + '<button type="button" data-v="shared"' + (draft.scope === 'shared' ? ' class="on"' : '') + '>2人で共有</button>'
-        + '<button type="button" data-v="private"' + (draft.scope === 'private' ? ' class="on"' : '') + '>自分だけ</button>'
+        + '<button type="button" data-v="shared"' + (draft.scope === 'shared' ? ' class="on"' : '') + '><i class="dot shared"></i>2人で共有</button>'
+        + '<button type="button" data-v="private"' + (draft.scope === 'private' ? ' class="on"' : '') + '><i class="dot mine"></i>自分だけ</button>'
       + '</div>'
       + '<button type="button" class="summary" id="f-toggle" aria-expanded="' + openMore + '">'
         + '<span id="f-sum">' + U.esc(summary()) + '</span><span class="chev">詳しく</span></button>'
