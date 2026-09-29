@@ -179,7 +179,7 @@
 
     exportAll: function () {
       return JSON.stringify({
-        app: 'Pair Board', version: (global.APP && APP.version) || '',
+        app: 'Diem', version: (global.APP && APP.version) || '',
         exportedAt: new Date().toISOString(),
         data: data,
         settings: { me: meta.me, partner: meta.partner, colors: meta.colors }

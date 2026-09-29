@@ -1,6 +1,6 @@
 {
-  "name": "Pair Board",
-  "short_name": "Pair Board",
+  "name": "Diem",
+  "short_name": "Diem",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

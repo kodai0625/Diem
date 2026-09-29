@@ -6,8 +6,8 @@
    URLだけ知られても、合言葉がなければ中身は読めません
    （10分に10回まちがえると、そのURLは10分止まります）。 */
 var APP = {
-  name: 'Pair Board',
-  version: 'eab9c87d',
+  name: 'Diem',        // 画面に出る名前（2026-09-30 に Pair Board から変えた）
+  version: 'ea796c02',
   syncUrl: 'https://script.google.com/macros/s/AKfycbxlH0eesofQYkx-Ml1MJQqZ7xOWZlqAN2aZTxP9iuzXcITal1aqNbX8-P0ixR22tciYAg/exec',
   autoSyncSec: 60     // 何秒ごとに自動で同期するか
 };
