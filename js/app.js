@@ -118,16 +118,19 @@
       + '</div></div><button type="button" class="mini" id="t-url">' + (T.enabled() ? '直す' : '入れる') + '</button></div>'
       + (T.enabled()
           ? '<div class="setrow"><div><div class="k">出ているタスク</div>'
-            + '<div class="d">期限があって、まだ終わっていないものだけ</div></div>'
-            + '<div style="display:flex;gap:8px;align-items:center"><b style="white-space:nowrap">' + T.count() + '件</b>'
-            + '<button type="button" class="mini" id="t-now">今すぐ読む</button></div></div>'
+            + '<div class="d"><b>個人 ' + T.count('personal') + '件' + (T.wantWork() ? '・会社 ' + T.count('work') + '件' : '') + '</b>'
+            + '（期限があって、まだ終わっていないものだけ）</div></div>'
+            + '<button type="button" class="mini" id="t-now">今すぐ読む</button></div>'
+            + '<div class="setrow"><div><div class="k">会社のタスクも出す</div>'
+            + '<div class="d">入にすると、会社の側の期限つきタスクも出します（色を変えて見分けます）</div></div>'
+            + '<button type="button" class="mini" id="t-work">' + (T.wantWork() ? '入' : '切') + '</button></div>'
             + '<div class="setrow"><div><div class="k">取り込みをやめる</div>'
             + '<div class="d">溜めたタスクも消します</div></div>'
             + '<button type="button" class="mini" id="t-off">やめる</button></div>'
           : '')
       + (T.lastError ? '<div class="warnbox">前回うまくいきませんでした：' + U.esc(T.lastError) + '</div>' : '')
-      + '<div class="note" style="margin-top:6px">★会社のタスクは取りに行きません（個人の分だけを名指しで読みます）。'
-      + 'タスクは相手には出ません。直すのは Task Board 側です</div>'
+      + '<div class="note" style="margin-top:6px">★会社のタスクは「会社のタスクも出す」が入のときだけ読みます。'
+      + '個人も会社も、タスクは<b>この端末の中だけ</b>に置き、一緒に使う相手には出ません。直すのは Task Board 側です</div>'
       + '</div>';
     }
 
@@ -220,6 +223,12 @@
       toast('読んでいます…');
       T.run(true).then(function () { toast('読み込みました'); renderSettings(); PB.Cal.render(); })
         .catch(function (e) { alert('うまくいきませんでした：\n' + e.message); renderSettings(); });
+    };
+    var tWork = body.querySelector('#t-work');
+    if (tWork) tWork.onclick = function () {
+      m.taskWork = !T.wantWork(); Store.saveMeta();
+      toast(m.taskWork ? '会社のタスクも読みます…' : '会社のタスクを出さないようにしました');
+      T.run(false).then(function () { renderSettings(); PB.Cal.render(); });
     };
     var tOff = body.querySelector('#t-off');
     if (tOff) tOff.onclick = function () {

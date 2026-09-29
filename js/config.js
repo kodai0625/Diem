@@ -7,7 +7,7 @@
    （10分に10回まちがえると、そのURLは10分止まります）。 */
 var APP = {
   name: 'Diem',
-  version: 'ec6a7a3e',
+  version: '8e6b0c3a',
   syncUrl: 'https://script.google.com/macros/s/AKfycbxlH0eesofQYkx-Ml1MJQqZ7xOWZlqAN2aZTxP9iuzXcITal1aqNbX8-P0ixR22tciYAg/exec',
   autoSyncSec: 60     // 何秒ごとに自動で同期するか
 };

@@ -5,7 +5,8 @@
   --sun:#c0645c; --sat:#4a7a9b;
   --me:#3f6f8f; --you:#c1766f; --other:#6f8f6a;
   --accent:#3f6f8f; --danger:#b7524a; --ok:#4e8c5a; --warn:#c68a2e;
-  --task:#7a6a9c;   /* Task Board のタスク */
+  --task:#7a6a9c;   /* Task Board のタスク（個人） */
+  --task-work:#9a7438; /* Task Board のタスク（会社） */
   --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.05);
   --on:#ffffff;   /* 色の上に乗せる文字の色 */
   --r:12px;
@@ -20,6 +21,7 @@
     --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
     --accent:#7fb0cf;
     --task:#a99ac9;
+    --task-work:#d6b06f;
     --on:#111619;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
   }
@@ -31,6 +33,7 @@
   --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
   --accent:#7fb0cf;
   --task:#a99ac9;
+  --task-work:#d6b06f;
   --on:#111619;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
 }
@@ -150,6 +153,10 @@ button{cursor:pointer}
 .bar2.contR{border-top-right-radius:0; border-bottom-right-radius:0}
 .bar.task{background:var(--task)}
 .tag.task{border-color:var(--task); color:var(--task)}
+/* 会社のタスクは黄土色。個人のタスク（紫）と見分ける */
+.bar2.task.work{color:var(--task-work); border-color:var(--task-work)}
+.bar.task.work{background:var(--task-work)}
+.tag.task.work{border-color:var(--task-work); color:var(--task-work)}
 
 /* ---------- その日の中身 ---------- */
 .daypanel{margin-top:12px}

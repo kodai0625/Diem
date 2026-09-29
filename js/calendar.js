@@ -138,6 +138,7 @@
     var title;
     if (it.kind === 'task') {
       cls.push('task');
+      if (it.rec.side === 'work') cls.push('work');     // 会社のタスクは色を変える
       title = it.rec.title;
     } else {
       var e = it.rec;
@@ -207,11 +208,12 @@
   }
 
   function taskRowHtml(t) {
+    var work = t.side === 'work';
     return '<div class="card"><div class="row">'
-      + '<span class="bar task"></span>'
+      + '<span class="bar task' + (work ? ' work' : '') + '"></span>'
       + '<span class="body"><span class="ttl">' + U.esc(t.title) + '</span>'
-      + '<span class="sub">期限　Task Board のタスク</span></span>'
-      + '<span class="tag task">タスク</span>'
+      + '<span class="sub">期限　Task Board の' + (work ? '会社' : '個人') + 'のタスク</span></span>'
+      + '<span class="tag task' + (work ? ' work' : '') + '">' + (work ? '会社のタスク' : 'タスク') + '</span>'
       + '</div></div>';
   }
 
