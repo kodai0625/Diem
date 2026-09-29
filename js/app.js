@@ -1,4 +1,4 @@
-/* Pair Board 全体の組み立て（画面の切り替え・設定・別窓・知らせ） */
+/* Diem 全体の組み立て（画面の切り替え・設定・別窓・知らせ） */
 (function (global) {
   'use strict';
   var PB = global.PB = global.PB || {};

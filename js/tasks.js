@@ -1,4 +1,4 @@
-/* Pair Board  Task Board のタスクを読む（見るだけ）
+/* Diem  Task Board のタスクを読む（見るだけ）
 
    ・★個人の分だけを名指しで取りに行く（space は 'personal' 固定）。会社の分は通信に乗せない
    ・取ったものは共有の箱（送信箱）に入れない。この端末の中だけに置く
@@ -8,7 +8,7 @@
   'use strict';
   var PB = global.PB = global.PB || {};
 
-  var KEY = 'pb.tasks';           // 予定（pb.data）とは別の入れ物にする
+  var KEY = 'diem.tasks';         // 予定（diem.data）とは別の入れ物にする
   var SPACE = 'personal';         // ★ここは絶対に変えない
   var Store = null;
   var cache = null;               // { since: 0, byDate: { 'YYYY-MM-DD': [ {...} ] }, at: 0 }

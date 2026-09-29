@@ -1,12 +1,12 @@
-/* Pair Board データの入れ物
+/* Diem データの入れ物
    ・すべて端末の localStorage に持ちます（電波がなくても入力できます）
    ・「2人で共有」の予定と立替金だけが送信箱に積まれ、あとでサーバーへ送られます
    ・「自分だけ」の予定は送信箱に入れません。端末の外へは出ません */
 (function (global) {
   'use strict';
 
-  var KEY_DATA = 'pb.data';
-  var KEY_META = 'pb.meta';
+  var KEY_DATA = 'diem.data';
+  var KEY_META = 'diem.meta';
 
   var KINDS = ['event', 'trip', 'expense', 'settle'];
 

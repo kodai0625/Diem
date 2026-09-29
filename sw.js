@@ -1,7 +1,7 @@
-/* Pair Board の読み込み係
+/* Diem の読み込み係
    ・いつもサーバーを先に見に行き、取れたときだけ控えを入れ替えます（つながらないときは控えを出す）
    ・res.ok を必ず見ます。見ないと、エラー画面そのものを控えてしまいます */
-var VERSION = 'pb-ea796c02';
+var VERSION = 'diem-4b6f302f';
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
