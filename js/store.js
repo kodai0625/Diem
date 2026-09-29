@@ -31,7 +31,8 @@
       lastSyncAt: 0,
       lastTrip: '',
       taskUrl: '',      // Task Board の受け口（入れたときだけタスクを読む）
-      taskPin: ''
+      taskPin: '',
+      taskShow: false   // 設定に「Task Board のタスク」を出すか（自分の端末だけ）
     };
   }
 

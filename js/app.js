@@ -109,6 +109,8 @@
       + '</div>';
 
     var T = PB.Tasks;
+    // ★この見出しは、合図を受けた端末にだけ出す（一緒に使う相手の画面には出さない）
+    if (m.taskShow || T.enabled()) {
     h += '<div class="secttl">Task Board のタスク</div><div class="card">'
       + '<div class="setrow"><div><div class="k">取り込み</div><div class="d">'
       + (T.enabled() ? '入（期限のあるタスクをカレンダーに出します）' : '切（Task Board の受け口を入れると始まります）')
@@ -126,6 +128,7 @@
       + '<div class="note" style="margin-top:6px">★会社のタスクは取りに行きません（個人の分だけを名指しで読みます）。'
       + 'タスクは相手には出ません。直すのは Task Board 側です</div>'
       + '</div>';
+    }
 
     h += '<div class="secttl">自分だけの予定</div><div class="card">'
       + '<div class="note">「自分だけ」の予定は <b>' + priv + '件</b>。相手には見えず、サーバーにも送られません。'
@@ -195,7 +198,8 @@
     };
 
     var T = PB.Tasks;
-    body.querySelector('#t-url').onclick = function () {
+    var tUrl = body.querySelector('#t-url');
+    if (tUrl) tUrl.onclick = function () {
       var u = prompt('Task Board の受け口のURL（空にすると取り込みをやめます）', m.taskUrl || '');
       if (u === null) return;
       u = u.trim();
@@ -219,8 +223,8 @@
     var tOff = body.querySelector('#t-off');
     if (tOff) tOff.onclick = function () {
       if (!confirm('タスクの取り込みをやめますか？\n（Task Board 側のタスクは消えません）')) return;
-      m.taskUrl = ''; m.taskPin = ''; Store.saveMeta(); T.clear();
-      renderSettings(); PB.Cal.render(); toast('やめました');
+      m.taskUrl = ''; m.taskPin = ''; m.taskShow = false; Store.saveMeta(); T.clear();
+      renderSettings(); PB.Cal.render(); toast('やめました。見出しも隠しました');
     };
 
     body.querySelector('#s-out').onclick = function () {
@@ -323,6 +327,19 @@
     };
 
     PB.App = { modal: modal, closeModal: closeModal, toast: toast, refreshSync: refreshSync };
+
+    // ★合図つきのリンク（…/?task=1）で開いた端末にだけ、タスクの設定を出す。
+    //   相手に渡すふつうのURLでは、見出しごと出ない。?task=0 で隠せる
+    try {
+      var q = new URLSearchParams(location.search);
+      if (q.has('task')) {
+        Store.meta().taskShow = (q.get('task') !== '0');
+        Store.saveMeta();
+        q.delete('task');
+        var rest = q.toString();
+        history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+      }
+    } catch (e) {}
 
     PB.Tasks.init(Store);
     PB.Tasks.onData = function () {

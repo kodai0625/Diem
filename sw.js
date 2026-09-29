@@ -1,7 +1,7 @@
 /* Pair Board の読み込み係
    ・いつもサーバーを先に見に行き、取れたときだけ控えを入れ替えます（つながらないときは控えを出す）
    ・res.ok を必ず見ます。見ないと、エラー画面そのものを控えてしまいます */
-var VERSION = 'pb-de047c40';
+var VERSION = 'pb-9a149648';
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
