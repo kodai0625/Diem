@@ -76,6 +76,7 @@
     if (v === 'exp') PB.Exp.render();
     if (v === 'set') renderSettings();
     if (v === 'cal') PB.Cal.render();
+    if (v === 'feed') PB.Cal.renderFeed();
     global.scrollTo(0, 0);
   }
 
@@ -357,7 +358,7 @@
       show(view === 'set' ? lastView : 'set');
     };
     document.getElementById('fab').onclick = function () {
-      if (view === 'cal') PB.Cal.add();
+      if (view === 'cal' || view === 'feed') PB.Cal.add();
       else if (view === 'exp') PB.Exp.add();
     };
 

@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" href="icons/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/style.css?v=9a149648">
+<link rel="stylesheet" href="css/style.css?v=eecf8065">
 </head>
 <body>
 
@@ -35,6 +35,7 @@
   </div>
   <nav class="tabs" id="tabs">
     <button type="button" class="tab on" data-view="cal">カレンダー</button>
+    <button type="button" class="tab" data-view="feed">これから</button>
     <button type="button" class="tab" data-view="exp">立替金</button>
   </nav>
 </header>
@@ -64,12 +65,15 @@
     <div class="daypanel" id="dayPanel"></div>
   </section>
 
+  <!-- ============ これから（近い予定を日付順に） ============ -->
+  <section id="view-feed" class="view">
+    <div id="feedBody"></div>
+  </section>
+
   <!-- ============ 立替金 ============ -->
   <section id="view-exp" class="view">
     <div class="trippick">
-      <select id="tripSelect" aria-label="旅行を選ぶ"></select>
-      <button type="button" class="mini" id="addTrip">旅行を足す</button>
-      <button type="button" class="mini" id="editTrip">この旅行を直す</button>
+      <button type="button" class="mini wide" id="addExpense">立替を記録する</button>
     </div>
     <div id="expBody"></div>
   </section>
@@ -89,12 +93,12 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="js/config.js?v=9a149648"></script>
-<script src="js/store.js?v=9a149648"></script>
-<script src="js/sync.js?v=9a149648"></script>
-<script src="js/calendar.js?v=9a149648"></script>
-<script src="js/expense.js?v=9a149648"></script>
-<script src="js/tasks.js?v=9a149648"></script>
-<script src="js/app.js?v=9a149648"></script>
+<script src="js/config.js?v=eecf8065"></script>
+<script src="js/store.js?v=eecf8065"></script>
+<script src="js/sync.js?v=eecf8065"></script>
+<script src="js/calendar.js?v=eecf8065"></script>
+<script src="js/expense.js?v=eecf8065"></script>
+<script src="js/tasks.js?v=eecf8065"></script>
+<script src="js/app.js?v=eecf8065"></script>
 </body>
 </html>
