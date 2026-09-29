@@ -188,7 +188,10 @@
     }
 
     grid.innerHTML = html;
-    document.getElementById('monthLabel').textContent = cur.getFullYear() + '年' + (cur.getMonth() + 1) + '月';
+    var ml = document.getElementById('monthLabel');
+    ml.innerHTML = '<span class="yy">' + cur.getFullYear() + '</span>'
+      + '<span class="mm">' + (cur.getMonth() + 1) + '<small>月</small></span>';
+    ml.setAttribute('aria-label', cur.getFullYear() + '年' + (cur.getMonth() + 1) + '月');
   }
 
   /* ---------- その日の中身 ---------- */
