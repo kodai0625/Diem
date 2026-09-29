@@ -144,7 +144,7 @@
       + '</div>';
 
     h += '<div class="secttl">その他</div><div class="card">'
-      + '<div class="setrow"><div><div class="k">版</div><div class="d">' + U.esc(APP.version) + '</div></div></div>'
+      + '<div class="setrow" id="s-ver"><div><div class="k">版</div><div class="d">' + U.esc(APP.version) + '</div></div></div>'
       + '<div class="setrow"><div><div class="k" style="color:var(--danger)">この端末のデータを全部消す</div>'
       + '<div class="d">サーバーにある共有分は消えません</div></div>'
       + '<button type="button" class="mini" id="s-wipe">消す</button></div>'
@@ -260,6 +260,23 @@
             } catch (e) { alert('読めませんでした：\n' + e.message); }
           };
         });
+    };
+
+    // ★「版」の行を5回続けて押すと、Task Board の設定を出す／隠す（自分の端末だけ）。
+    //   iPhone のホーム画面のアプリは Safari と保存場所が別なので、?task=1 のリンクが届かない。
+    //   アプリの中で合図を送れるように、ここに置いた。一緒に使う相手が偶然見つけないよう、5回にしてある
+    var ver = body.querySelector('#s-ver'), taps = 0, tapTimer = null;
+    if (ver) ver.onclick = function () {
+      taps++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(function () { taps = 0; }, 2500);
+      if (taps < 5) return;
+      taps = 0;
+      m.taskShow = !(m.taskShow || PB.Tasks.enabled());
+      if (!m.taskShow) { m.taskUrl = ''; m.taskPin = ''; PB.Tasks.clear(); }
+      Store.saveMeta();
+      renderSettings(); PB.Cal.render();
+      toast(m.taskShow ? 'Task Board の設定を出しました' : 'Task Board の設定を隠しました');
     };
 
     body.querySelector('#s-wipe').onclick = function () {
