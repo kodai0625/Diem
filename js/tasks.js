@@ -12,7 +12,13 @@
    2026-09-30 に作り直した点
    ・受け口の返事がときどき崩れるので、送り方は同期と同じもの（崩れたら2回まで送り直す）を使う
    ・個人と会社を**別々に**読んで、別々に持つ。片方が失敗しても、もう片方は取り込む。
-     失敗した側は、前に取れた分を消さずに残す（崩れた返事で、タスクが全部消えて見えないように） */
+     失敗した側は、前に取れた分を消さずに残す（崩れた返事で、タスクが全部消えて見えないように）
+
+   2026-10-11 にまとめ直した点（★配布用を分けたため）
+   ・Task Board に関するものは、**このファイルと css/tasks.css の2つだけ**に置く。
+     カレンダー（calendar.js）と設定（app.js）は、下の PB.Extra という口を通して呼ぶだけで、中身を知らない
+   ・★配布用（一緒に使う相手に渡す方）は、この2つを入れずに組み立てる（公開用を作る.py）。
+     ここに書いたものは相手の側には1行も入らない。ほかのファイルに Task Board の処理を書き足さないこと */
 (function (global) {
   'use strict';
   var PB = global.PB = global.PB || {};
@@ -180,4 +186,144 @@
   };
 
   PB.Tasks = Tasks;
+
+  /* ---------- 画面とのつなぎ（カレンダーと設定は、この口だけを通して呼ぶ） ---------- */
+  var api = null;   // app.js から受け取る { store, toast, refresh }
+
+  /** タスクの「いつ」：やる日なら「やる日 13:00〜13:30」、期限の日なら「期限」 */
+  function when(t) {
+    var U = PB.U;
+    var s = t.by === 'do' ? 'やる日' : '期限';
+    if (t.time) {
+      var h = +t.time.slice(0, 2), mi = +t.time.slice(3, 5) + (t.dur || 30);
+      s += ' ' + t.time + '〜' + U.pad((h + Math.floor(mi / 60)) % 24) + ':' + U.pad(mi % 60);
+    }
+    if (t.by === 'do' && t.due) s += '（期限 ' + U.short(t.due) + '）';
+    return s;
+  }
+
+  /** その日の一覧・「これから」に出す1行（見るだけなので押せない） */
+  function rowHtml(t) {
+    var U = PB.U;
+    var work = t.side === 'work';
+    return '<div class="card"><div class="row">'
+      + '<span class="bar task' + (work ? ' work' : '') + '"></span>'
+      + '<span class="body"><span class="ttl">' + U.esc(t.title) + '</span>'
+      + '<span class="sub">' + U.esc(when(t)) + '　Task Board の' + (work ? '会社' : '個人') + 'のタスク</span></span>'
+      + '<span class="tag task' + (work ? ' work' : '') + '">' + (work ? '会社のタスク' : 'タスク') + '</span>'
+      + '</div></div>';
+  }
+
+  /** 設定の欄。★合図を受けた端末にだけ出す */
+  function settingsHtml() {
+    var U = PB.U, m = Store.meta(), T = Tasks;
+    if (!(m.taskShow || T.enabled())) return '';
+    return '<div class="secttl">Task Board のタスク</div><div class="card">'
+      + '<div class="setrow"><div><div class="k">取り込み</div><div class="d">'
+      + (T.enabled() ? '入（期限のあるタスクをカレンダーに出します）' : '切（Task Board の受け口を入れると始まります）')
+      + '</div></div><button type="button" class="mini" id="t-url">' + (T.enabled() ? '直す' : '入れる') + '</button></div>'
+      + (T.enabled()
+          ? '<div class="setrow"><div><div class="k">出ているタスク</div>'
+            + '<div class="d"><b>個人 ' + T.count('personal') + '件' + (T.wantWork() ? '・会社 ' + T.count('work') + '件' : '') + '</b>'
+            + '（やる日か期限があって、まだ終わっていないもの。やる日があればやる日、なければ期限の日に出します）</div></div>'
+            + '<button type="button" class="mini" id="t-now">今すぐ読む</button></div>'
+            + '<div class="setrow"><div><div class="k">会社のタスクも出す</div>'
+            + '<div class="d">入にすると、会社の側のタスクも出します（色を変えて見分けます）</div></div>'
+            + '<button type="button" class="mini" id="t-work">' + (T.wantWork() ? '入' : '切') + '</button></div>'
+            + '<div class="setrow"><div><div class="k">取り込みをやめる</div>'
+            + '<div class="d">溜めたタスクも消します</div></div>'
+            + '<button type="button" class="mini" id="t-off">やめる</button></div>'
+          : '')
+      + (T.lastError ? '<div class="warnbox">前回うまくいきませんでした：' + U.esc(T.lastError) + '</div>' : '')
+      + '<div class="note" style="margin-top:6px">★会社のタスクは「会社のタスクも出す」が入のときだけ読みます。'
+      + '個人も会社も、タスクは<b>この端末の中だけ</b>に置き、一緒に使う相手には出ません。直すのは Task Board 側です</div>'
+      + '</div>';
+  }
+
+  /** 設定の押しどころ */
+  function bindSettings(body) {
+    var m = Store.meta(), T = Tasks, toast = api.toast, refresh = api.refresh;
+
+    var tUrl = body.querySelector('#t-url');
+    if (tUrl) tUrl.onclick = function () {
+      var u = prompt('Task Board の受け口のURL（空にすると取り込みをやめます）', m.taskUrl || '');
+      if (u === null) return;
+      u = u.trim();
+      if (!u) { m.taskUrl = ''; m.taskPin = ''; Store.saveMeta(); T.clear(); refresh(); return; }
+      var pin = prompt('Task Board の合言葉', m.taskPin || '');
+      if (pin === null) return;
+      toast('つないでいます…');
+      T.test(u, pin).then(function () {
+        m.taskUrl = u; m.taskPin = pin.trim(); Store.saveMeta();
+        return T.run(true);
+      }).then(function () {
+        toast('タスクを読み込みました'); T.start(); refresh();
+      }).catch(function (e) { alert('つながりませんでした：\n' + e.message); refresh(); });
+    };
+    var tNow = body.querySelector('#t-now');
+    if (tNow) tNow.onclick = function () {
+      toast('読んでいます…');
+      T.run(true).then(function () { toast('読み込みました'); refresh(); })
+        .catch(function (e) { alert('うまくいきませんでした：\n' + e.message); refresh(); });
+    };
+    var tWork = body.querySelector('#t-work');
+    if (tWork) tWork.onclick = function () {
+      m.taskWork = !T.wantWork(); Store.saveMeta();
+      toast(m.taskWork ? '会社のタスクも読みます…' : '会社のタスクを出さないようにしました');
+      T.run(false).then(function () { refresh(); });
+    };
+    var tOff = body.querySelector('#t-off');
+    if (tOff) tOff.onclick = function () {
+      if (!confirm('タスクの取り込みをやめますか？\n（Task Board 側のタスクは消えません）')) return;
+      m.taskUrl = ''; m.taskPin = ''; m.taskShow = false; Store.saveMeta(); T.clear();
+      refresh(); toast('やめました。見出しも隠しました');
+    };
+
+    // ★「版」の行を5回続けて押すと、Task Board の設定を出す／隠す（自分の端末だけ）。
+    //   iPhone のホーム画面のアプリは Safari と保存場所が別なので、?task=1 のリンクが届かない。
+    //   アプリの中で合図を送れるように、ここに置いた。偶然見つけないよう、5回にしてある
+    var ver = body.querySelector('#s-ver'), taps = 0, tapTimer = null;
+    if (ver) ver.onclick = function () {
+      taps++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(function () { taps = 0; }, 2500);
+      if (taps < 5) return;
+      taps = 0;
+      m.taskShow = !(m.taskShow || T.enabled());
+      if (!m.taskShow) { m.taskUrl = ''; m.taskPin = ''; T.clear(); }
+      Store.saveMeta();
+      refresh();
+      toast(m.taskShow ? 'Task Board の設定を出しました' : 'Task Board の設定を隠しました');
+    };
+  }
+
+  /** 起動のとき。カレンダーを描く前に呼ばれる */
+  function boot(a) {
+    api = a;
+    // ★合図つきのリンク（…/?task=1）で開いた端末にだけ、タスクの設定を出す。?task=0 で隠せる
+    try {
+      var q = new URLSearchParams(location.search);
+      if (q.has('task')) {
+        a.store.meta().taskShow = (q.get('task') !== '0');
+        a.store.saveMeta();
+        q.delete('task');
+        var rest = q.toString();
+        history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+      }
+    } catch (e) {}
+    Tasks.init(a.store);
+    Tasks.onData = a.refresh;
+  }
+
+  PB.Extra = {
+    boot: boot,
+    autoStart: function () { if (enabled()) Tasks.start(); },
+    enabled: enabled,
+    on: Tasks.on,
+    barClass: function (t) { return t.side === 'work' ? 'task work' : 'task'; },
+    rowHtml: rowHtml,
+    dayHint: 'タスクは見るだけです。直すときは Task Board を開いてください',
+    settingsHtml: settingsHtml,
+    bindSettings: bindSettings
+  };
 })(window);

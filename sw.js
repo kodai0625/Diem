@@ -1,7 +1,10 @@
 /* Diem の読み込み係
    ・いつもサーバーを先に見に行き、取れたときだけ控えを入れ替えます（つながらないときは控えを出す）
    ・res.ok を必ず見ます。見ないと、エラー画面そのものを控えてしまいます */
-var VERSION = 'diem-71a69f6c';
+var VERSION = 'diem-4162db5b';
+// ★同じ住所（kodai0625.github.io）には、ほかのアプリや、もう1つの Diem の控えも置かれている。
+//   消すのは「自分の名前で始まる古い控え」だけ。全部消すと、ほかのアプリが電波なしで開けなくなる
+var PREFIX = VERSION.slice(0, VERSION.indexOf('-') + 1);
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
@@ -9,7 +12,9 @@ self.addEventListener('install', function (e) {
 
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
-    return Promise.all(keys.map(function (k) { return k === VERSION ? null : caches.delete(k); }));
+    return Promise.all(keys.map(function (k) {
+      return (k !== VERSION && k.indexOf(PREFIX) === 0) ? caches.delete(k) : null;
+    }));
   }).then(function () { return self.clients.claim(); }));
 });
 

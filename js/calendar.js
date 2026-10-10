@@ -86,10 +86,10 @@
     }).sort(byTime);
   }
 
-  /** その日の「期限が来るタスク」。自分だけの側のものとして扱う */
-  function tasksOn(dateStr) {
+  /** その日の「見るだけの項目」。追加の機能（PB.Extra）が入っているときだけ出る。自分だけの側のものとして扱う */
+  function extrasOn(dateStr) {
     if (filter === 'shared') return [];
-    return (PB.Tasks && PB.Tasks.on(dateStr)) || [];
+    return (PB.Extra && PB.Extra.on(dateStr)) || [];
   }
 
   /* ---------- 月の表 ---------- */
@@ -109,8 +109,8 @@
       items.push({ kind: 'event', rec: e, sc: sc, ec: ec, contL: s < first, contR: t > last });
     });
     days.forEach(function (d, i) {
-      tasksOn(d).forEach(function (t) {
-        items.push({ kind: 'task', rec: t, sc: i, ec: i, contL: false, contR: false });
+      extrasOn(d).forEach(function (t) {
+        items.push({ kind: 'extra', rec: t, sc: i, ec: i, contL: false, contR: false });
       });
     });
 
@@ -139,9 +139,8 @@
       + 'width:calc(100% / 7 * ' + (it.ec - it.sc + 1) + ' - 4px);'
       + 'top:' + (21 + it.lane * 17) + 'px;';
     var title;
-    if (it.kind === 'task') {
-      cls.push('task');
-      if (it.rec.side === 'work') cls.push('work');     // 会社のタスクは色を変える
+    if (it.kind === 'extra') {
+      cls.push(PB.Extra.barClass(it.rec));              // 見た目は追加の機能の側で決める
       title = it.rec.title;
     } else {
       var e = it.rec;
@@ -213,39 +212,18 @@
       + '</button></div>';
   }
 
-  /** タスクの「いつ」：やる日なら「やる日 13:00〜13:30」、期限の日なら「期限」 */
-  function taskWhen(t) {
-    var s = t.by === 'do' ? 'やる日' : '期限';
-    if (t.time) {
-      var h = +t.time.slice(0, 2), mi = +t.time.slice(3, 5) + (t.dur || 30);
-      s += ' ' + t.time + '〜' + U.pad((h + Math.floor(mi / 60)) % 24) + ':' + U.pad(mi % 60);
-    }
-    if (t.by === 'do' && t.due) s += '（期限 ' + U.short(t.due) + '）';
-    return s;
-  }
-
-  function taskRowHtml(t) {
-    var work = t.side === 'work';
-    return '<div class="card"><div class="row">'
-      + '<span class="bar task' + (work ? ' work' : '') + '"></span>'
-      + '<span class="body"><span class="ttl">' + U.esc(t.title) + '</span>'
-      + '<span class="sub">' + U.esc(taskWhen(t)) + '　Task Board の' + (work ? '会社' : '個人') + 'のタスク</span></span>'
-      + '<span class="tag task' + (work ? ' work' : '') + '">' + (work ? '会社のタスク' : 'タスク') + '</span>'
-      + '</div></div>';
-  }
-
   function renderDay() {
     var el = document.getElementById('dayPanel');
     var evs = eventsOn(sel);
-    var tks = tasksOn(sel);
-    var n = evs.length + tks.length;
+    var xs = extrasOn(sel);
+    var n = evs.length + xs.length;
     var html = '<div class="dayttl"><b>' + U.label(sel) + '</b><span>' + (n ? n + '件' : '予定なし') + '</span></div>';
     if (!n) {
       html += '<div class="card"><div class="empty">この日の予定はまだありません。<br>右下の ＋ か、この日をもう一度押すと足せます</div></div>';
     } else {
       evs.forEach(function (e) { html += rowHtml(e); });
-      tks.forEach(function (t) { html += taskRowHtml(t); });
-      if (tks.length) html += '<div class="hint" style="margin:2px 4px 0">タスクは見るだけです。直すときは Task Board を開いてください</div>';
+      xs.forEach(function (t) { html += PB.Extra.rowHtml(t); });
+      if (xs.length && PB.Extra.dayHint) html += '<div class="hint" style="margin:2px 4px 0">' + U.esc(PB.Extra.dayHint) + '</div>';
     }
     el.innerHTML = html;
   }
@@ -264,11 +242,11 @@
       var key = s < today ? today : s;           // もう始まっているものは今日に出す
       (byDate[key] = byDate[key] || []).push({ kind: 'event', rec: e, cont: s < today });
     });
-    if (PB.Tasks && PB.Tasks.enabled()) {
+    if (PB.Extra && PB.Extra.enabled()) {
       for (var d = U.today(), k = 0; k <= 90; k++, d = U.addDays(d, 1)) {
         var ds = U.ymd(d);
-        PB.Tasks.on(ds).forEach(function (t) {
-          (byDate[ds] = byDate[ds] || []).push({ kind: 'task', rec: t });
+        PB.Extra.on(ds).forEach(function (t) {
+          (byDate[ds] = byDate[ds] || []).push({ kind: 'extra', rec: t });
         });
       }
     }
@@ -289,7 +267,7 @@
         + '<b>' + U.rel(ds) + '</b>' + (U.rel(ds) !== U.label(ds) ? '<span>' + U.label(ds) + '</span>' : '')
         + '</div>';
       list.forEach(function (it) {
-        if (it.kind === 'task') { html += taskRowHtml(it.rec); return; }
+        if (it.kind === 'extra') { html += PB.Extra.rowHtml(it.rec); return; }
         html += rowHtml(it.rec);
       });
     });

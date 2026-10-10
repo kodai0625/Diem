@@ -1,0 +1,31 @@
+/* Diem  Task Board のタスクの見た目（★私用だけ。配布用には入れない）
+   js/tasks.js と対になっている。style.css・deco.css のあとに読む */
+
+:root{
+  --task:#7a6a9c;        /* 個人のタスク（紫） */
+  --task-work:#9a7438;   /* 会社のタスク（黄土色） */
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --task:#a99ac9;
+    --task-work:#d6b06f;
+  }
+}
+:root[data-theme="dark"]{
+  --task:#a99ac9;
+  --task-work:#d6b06f;
+}
+
+/* 月の表の帯：予定と見分けるため、塗らずに枠と左の太線（つやと影も付けない） */
+.bar2.task{
+  background:transparent; color:var(--task);
+  border:1px solid var(--task); border-left-width:3px; line-height:13px;
+  box-shadow:none;
+}
+/* その日の一覧の左の線と、右の札 */
+.bar.task{background:var(--task)}
+.tag.task{border-color:var(--task); color:var(--task)}
+/* 会社のタスクは黄土色。個人のタスク（紫）と見分ける */
+.bar2.task.work{color:var(--task-work); border-color:var(--task-work)}
+.bar.task.work{background:var(--task-work)}
+.tag.task.work{border-color:var(--task-work); color:var(--task-work)}

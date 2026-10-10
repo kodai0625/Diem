@@ -29,11 +29,7 @@
       syncUrl: '',
       outbox: [],
       lastSyncAt: 0,
-      lastTrip: '',
-      taskUrl: '',      // Task Board の受け口（入れたときだけタスクを読む）
-      taskPin: '',
-      taskShow: false,  // 設定に「Task Board のタスク」を出すか（自分の端末だけ）
-      taskWork: true    // 会社のタスクも出すか（2026-09-30 から。切れる）
+      lastTrip: ''
     };
   }
 

@@ -128,30 +128,7 @@
       + (Sync.lastError ? '<div class="warnbox">前回うまくいきませんでした：' + U.esc(Sync.lastError) + '</div>' : '')
       + '</div>';
 
-    var T = PB.Tasks;
-    // ★この見出しは、合図を受けた端末にだけ出す（一緒に使う相手の画面には出さない）
-    if (m.taskShow || T.enabled()) {
-    h += '<div class="secttl">Task Board のタスク</div><div class="card">'
-      + '<div class="setrow"><div><div class="k">取り込み</div><div class="d">'
-      + (T.enabled() ? '入（期限のあるタスクをカレンダーに出します）' : '切（Task Board の受け口を入れると始まります）')
-      + '</div></div><button type="button" class="mini" id="t-url">' + (T.enabled() ? '直す' : '入れる') + '</button></div>'
-      + (T.enabled()
-          ? '<div class="setrow"><div><div class="k">出ているタスク</div>'
-            + '<div class="d"><b>個人 ' + T.count('personal') + '件' + (T.wantWork() ? '・会社 ' + T.count('work') + '件' : '') + '</b>'
-            + '（やる日か期限があって、まだ終わっていないもの。やる日があればやる日、なければ期限の日に出します）</div></div>'
-            + '<button type="button" class="mini" id="t-now">今すぐ読む</button></div>'
-            + '<div class="setrow"><div><div class="k">会社のタスクも出す</div>'
-            + '<div class="d">入にすると、会社の側のタスクも出します（色を変えて見分けます）</div></div>'
-            + '<button type="button" class="mini" id="t-work">' + (T.wantWork() ? '入' : '切') + '</button></div>'
-            + '<div class="setrow"><div><div class="k">取り込みをやめる</div>'
-            + '<div class="d">溜めたタスクも消します</div></div>'
-            + '<button type="button" class="mini" id="t-off">やめる</button></div>'
-          : '')
-      + (T.lastError ? '<div class="warnbox">前回うまくいきませんでした：' + U.esc(T.lastError) + '</div>' : '')
-      + '<div class="note" style="margin-top:6px">★会社のタスクは「会社のタスクも出す」が入のときだけ読みます。'
-      + '個人も会社も、タスクは<b>この端末の中だけ</b>に置き、一緒に使う相手には出ません。直すのは Task Board 側です</div>'
-      + '</div>';
-    }
+    if (PB.Extra) h += PB.Extra.settingsHtml();   // 追加の機能があれば、その設定の欄
 
     h += '<div class="secttl">自分だけの予定</div><div class="card">'
       + '<div class="note">「自分だけ」の予定は <b>' + priv + '件</b>。相手には見えず、サーバーにも送られません。'
@@ -220,41 +197,7 @@
       }).catch(function (e) { alert('うまくいきませんでした：\n' + e.message); renderSettings(); });
     };
 
-    var T = PB.Tasks;
-    var tUrl = body.querySelector('#t-url');
-    if (tUrl) tUrl.onclick = function () {
-      var u = prompt('Task Board の受け口のURL（空にすると取り込みをやめます）', m.taskUrl || '');
-      if (u === null) return;
-      u = u.trim();
-      if (!u) { m.taskUrl = ''; m.taskPin = ''; Store.saveMeta(); T.clear(); renderSettings(); PB.Cal.render(); return; }
-      var pin = prompt('Task Board の合言葉', m.taskPin || '');
-      if (pin === null) return;
-      toast('つないでいます…');
-      T.test(u, pin).then(function () {
-        m.taskUrl = u; m.taskPin = pin.trim(); Store.saveMeta();
-        return T.run(true);
-      }).then(function () {
-        toast('タスクを読み込みました'); T.start(); renderSettings(); PB.Cal.render();
-      }).catch(function (e) { alert('つながりませんでした：\n' + e.message); renderSettings(); });
-    };
-    var tNow = body.querySelector('#t-now');
-    if (tNow) tNow.onclick = function () {
-      toast('読んでいます…');
-      T.run(true).then(function () { toast('読み込みました'); renderSettings(); PB.Cal.render(); })
-        .catch(function (e) { alert('うまくいきませんでした：\n' + e.message); renderSettings(); });
-    };
-    var tWork = body.querySelector('#t-work');
-    if (tWork) tWork.onclick = function () {
-      m.taskWork = !T.wantWork(); Store.saveMeta();
-      toast(m.taskWork ? '会社のタスクも読みます…' : '会社のタスクを出さないようにしました');
-      T.run(false).then(function () { renderSettings(); PB.Cal.render(); });
-    };
-    var tOff = body.querySelector('#t-off');
-    if (tOff) tOff.onclick = function () {
-      if (!confirm('タスクの取り込みをやめますか？\n（Task Board 側のタスクは消えません）')) return;
-      m.taskUrl = ''; m.taskPin = ''; m.taskShow = false; Store.saveMeta(); T.clear();
-      renderSettings(); PB.Cal.render(); toast('やめました。見出しも隠しました');
-    };
+    if (PB.Extra) PB.Extra.bindSettings(body);    // 追加の機能の押しどころ
 
     body.querySelector('#s-out').onclick = function () {
       var text = Store.exportAll();
@@ -290,23 +233,6 @@
         });
     };
 
-    // ★「版」の行を5回続けて押すと、Task Board の設定を出す／隠す（自分の端末だけ）。
-    //   iPhone のホーム画面のアプリは Safari と保存場所が別なので、?task=1 のリンクが届かない。
-    //   アプリの中で合図を送れるように、ここに置いた。一緒に使う相手が偶然見つけないよう、5回にしてある
-    var ver = body.querySelector('#s-ver'), taps = 0, tapTimer = null;
-    if (ver) ver.onclick = function () {
-      taps++;
-      clearTimeout(tapTimer);
-      tapTimer = setTimeout(function () { taps = 0; }, 2500);
-      if (taps < 5) return;
-      taps = 0;
-      m.taskShow = !(m.taskShow || PB.Tasks.enabled());
-      if (!m.taskShow) { m.taskUrl = ''; m.taskPin = ''; PB.Tasks.clear(); }
-      Store.saveMeta();
-      renderSettings(); PB.Cal.render();
-      toast(m.taskShow ? 'Task Board の設定を出しました' : 'Task Board の設定を隠しました');
-    };
-
     body.querySelector('#s-wipe').onclick = function () {
       if (!confirm('この端末のデータを全部消します。\n「自分だけ」の予定は戻せません。よろしいですか？')) return;
       if (!confirm('本当に消しますか？')) return;
@@ -334,7 +260,7 @@
   function firstRun() {
     var askPin = !!effectiveUrl() && !Store.meta().pin;
     modal('<h2>はじめに</h2>'
-      + '<div class="hint">予定を「誰の予定か」で色分けします。あとから設定で直せます</div>'
+      + '<div class="hint">名前は、予定や立替金を「誰が入れたか」見分けるのに使います。あとから設定で直せます</div>'
       + '<div class="f"><label>あなたの名前</label><input type="text" id="n-me" placeholder="例）こうだい"></div>'
       + '<div class="f"><label>一緒に使う人の名前</label><input type="text" id="n-you" placeholder="例）あいて"></div>'
       + (askPin
@@ -374,24 +300,11 @@
 
     PB.App = { modal: modal, closeModal: closeModal, toast: toast, refreshSync: refreshSync };
 
-    // ★合図つきのリンク（…/?task=1）で開いた端末にだけ、タスクの設定を出す。
-    //   相手に渡すふつうのURLでは、見出しごと出ない。?task=0 で隠せる
-    try {
-      var q = new URLSearchParams(location.search);
-      if (q.has('task')) {
-        Store.meta().taskShow = (q.get('task') !== '0');
-        Store.saveMeta();
-        q.delete('task');
-        var rest = q.toString();
-        history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
-      }
-    } catch (e) {}
-
-    PB.Tasks.init(Store);
-    PB.Tasks.onData = function () {
-      PB.Cal.render();
-      if (view === 'set') renderSettings();
-    };
+    // 追加の機能（入っていれば）。カレンダーを描く前に用意させる
+    if (PB.Extra) PB.Extra.boot({
+      store: Store, toast: toast,
+      refresh: function () { PB.Cal.render(); if (view === 'set') renderSettings(); }
+    });
 
     PB.Cal.init(Store);
     PB.Exp.init(Store);
@@ -422,7 +335,7 @@
 
     paintSync();
     ensureStarted();
-    if (PB.Tasks.enabled()) PB.Tasks.start();
+    if (PB.Extra) PB.Extra.autoStart();
     if (!Store.meta().me) firstRun();
   }
 

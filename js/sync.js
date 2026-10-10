@@ -21,9 +21,9 @@
 
   /* ★Google の Apps Script は、受け口が動いたあと返事を受け取る段（script.googleusercontent.com）で、
      ときどき返事が崩れる。6回に1回ほど「404」、ほかに「中身が空・JSON でない」「ok なのに要るものが無い」。
-     **受け口の処理（シートへの書き込み）は済んでいる**ので、少し待って2回まで送り直す（Task Board と同じ形）。
+     **受け口の処理（シートへの書き込み）は済んでいる**ので、少し待って2回まで送り直す。
      送り直してよいのは、書き込みが **id ごとの上書き**で、2回届いても1行のままだから（gas/コード.gs の push）。
-     2026-09-30 まで Diem には入っておらず、右上が「送れません」になったり、タスクが出なかったりした */
+     2026-09-30 まで Diem には入っておらず、右上が「送れません」になることがあった */
   var NEED = { ping: 'now', pull: 'rows', push: 'applied' };   // 動きごとに、返事に要るもの
 
   function explain(code) {
@@ -36,7 +36,7 @@
     })[code] || (code || '断られました');
   }
 
-  /** 受け口に送る（崩れた返事は送り直す）。Diem の同期と、Task Board のタスクの取り込みの両方で使う */
+  /** 受け口に送る（崩れた返事は送り直す）。Diem の同期のほか、追加の機能（PB.Extra）からも使う */
   function request(u, payload, tries) {
     tries = tries || 0;
     return fetch(u, {
@@ -117,7 +117,7 @@
       return request((u || '').trim(), { pin: (p || '').trim(), action: 'ping' });
     },
 
-    /** ほかの受け口（Task Board）にも同じ送り方で送る */
+    /** ほかの受け口にも同じ送り方で送る（追加の機能が使う） */
     request: request,
 
     start: function () {
