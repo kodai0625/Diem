@@ -145,6 +145,7 @@
   var sel = U.ymd(U.today());                             // 選んでいる日
   var filter = 'all';
   var query = '';                                         // 「これから」の検索の言葉
+  var mineOnly = false;                                   // 「これから」を自分だけの予定にしぼっているか（切り替える操作は私用にだけある）
   var LANES = 3;                                          // 1日に帯を何段まで出すか
 
   function passFilter(e) {
@@ -433,6 +434,7 @@
     var words = norm(q).split(/\s+/).filter(Boolean);
     var hits = [];
     Store.list('event').forEach(function (e) {
+      if (mineOnly && e.scope !== 'private') return;
       var k = kindOf(e);
       var text = norm([e.title, e.memo, k ? KINDS[k] : '', repOf(e) ? REPEATS[repOf(e)] : '', e.owner].join(' '));
       for (var i = 0; i < words.length; i++) if (text.indexOf(words[i]) < 0) return;
@@ -440,7 +442,7 @@
       hits.push({ rec: e, date: d, coming: (repOf(e) ? d : (e.end || e.start)) >= today });
     });
     if (!hits.length) {
-      return '<div class="card"><div class="empty">「' + U.esc(q) + '」に合う予定は見つかりませんでした</div></div>';
+      return '<div class="card"><div class="empty">「' + U.esc(q) + '」に合う' + (mineOnly ? '自分だけの' : '') + '予定は見つかりませんでした</div></div>';
     }
     var coming = hits.filter(function (h) { return h.coming; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
     var past = hits.filter(function (h) { return !h.coming; }).sort(function (a, b) { return a.date > b.date ? -1 : 1; });
@@ -473,6 +475,7 @@
     var byDate = {};
 
     Store.list('event').forEach(function (e) {
+      if (mineOnly && e.scope !== 'private') return;
       if (repOf(e)) {                            // くり返す予定は、次に来る1回だけを出す（毎週のものが並びすぎないように）
         var occ = nextDate(e, today);
         if (occ && occ <= until) (byDate[occ] = byDate[occ] || []).push({ kind: 'event', rec: e });
@@ -493,9 +496,11 @@
     }
 
     var dates = Object.keys(byDate).sort();
-    var html = freshHtml(today) + soonHtml(today);
+    // 自分だけにしぼっているあいだは、新着（相手から来たもの）と「もうすぐ」の欄も出さない
+    var html = mineOnly ? '' : freshHtml(today) + soonHtml(today);
     if (!dates.length) {
-      el.innerHTML = html + '<div class="card"><div class="empty">これから90日の予定はありません。<br>右下の ＋ から足せます</div></div>';
+      el.innerHTML = html + '<div class="card"><div class="empty">これから90日' + (mineOnly ? '、自分だけの予定' : 'の予定')
+        + 'はありません。<br>右下の ＋ から足せます</div></div>';
       return;
     }
     dates.forEach(function (ds) {
@@ -780,6 +785,11 @@
     },
     render: render,
     renderFeed: renderFeed,
+    /** 「これから」を自分だけの予定にしぼる（true）／全部に戻す（false）。何も渡さなければ、いまの状態を返す */
+    feedMine: function (on) {
+      if (arguments.length) { mineOnly = !!on; renderFeed(); }
+      return mineOnly;
+    },
     add: function () { openEvent(null, sel); }
   };
 })(window);
