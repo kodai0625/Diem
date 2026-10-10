@@ -29,7 +29,8 @@
       syncUrl: '',
       outbox: [],
       lastSyncAt: 0,
-      lastTrip: ''
+      lastTrip: '',
+      fresh: {}         // 相手が足した・直した予定のしるし { 予定のid: 'new'（足した）｜'upd'（直した） }。この端末の中だけ
     };
   }
 
@@ -154,6 +155,10 @@
       var pending = {};
       meta.outbox.forEach(function (o) { pending[o.kind + '/' + o.id] = true; });
       var changed = 0;
+      // ★相手が足した・直した予定には「新着」のしるしを付ける（2026-10-11）。
+      //   はじめての同期（since が 0）では付けない。全部が新着になってしまうため
+      var mark = (meta.since || 0) > 0, marked = false;
+      if (!meta.fresh) meta.fresh = {};
       rows.forEach(function (row) {
         if (KINDS.indexOf(row.kind) < 0) return;
         if (pending[row.kind + '/' + row.id]) return;
@@ -163,14 +168,43 @@
         rec.updatedAt = Number(row.updatedAt) || Date.now();
         if (row.deleted) rec.deleted = true;
         if (rec.scope === 'private') rec.scope = 'shared'; // 共有に載ったものは共有として扱う
+        var old = data[row.kind][row.id];
+        if (row.kind === 'event') {
+          if (rec.deleted) {
+            if (meta.fresh[row.id]) { delete meta.fresh[row.id]; marked = true; }
+          } else if (mark && rec.updatedBy && rec.updatedBy !== (meta.me || '')
+                     && !(old && old.updatedAt === rec.updatedAt)) {      // 同じ版をもう一度受け取っただけなら付けない
+            meta.fresh[row.id] = (old && !old.deleted) ? 'upd' : 'new';
+            marked = true;
+          }
+        }
         data[row.kind][row.id] = rec;
         changed++;
       });
       if (changed) saveData();
+      if (marked) saveMeta();
       return changed;
     },
 
     setSince: function (now) { meta.since = now; meta.lastSyncAt = Date.now(); saveMeta(); },
+
+    /* ---------------- 新着のしるし（相手が足した・直した予定） ---------------- */
+
+    /** しるしの付いている予定 { id: 'new'｜'upd' }（消えた予定の分は外して返す） */
+    fresh: function () {
+      var out = {}, f = meta.fresh || {};
+      Object.keys(f).forEach(function (id) {
+        var rec = data.event[id];
+        if (rec && !rec.deleted) out[id] = f[id];
+      });
+      return out;
+    },
+    /** 見た（開いた）予定のしるしを外す */
+    seen: function (id) {
+      if (meta.fresh && meta.fresh[id]) { delete meta.fresh[id]; saveMeta(); return true; }
+      return false;
+    },
+    seenAll: function () { meta.fresh = {}; saveMeta(); },
 
     /* ---------------- 持ち出し・持ち込み ---------------- */
 

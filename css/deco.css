@@ -242,3 +242,40 @@ body{background:var(--ground), var(--paper)}
 .mini{border-color:var(--gold-line); font-family:var(--mincho); letter-spacing:.04em}
 .mini:active{background:var(--sel-wash)}
 input[type=checkbox]{accent-color:var(--accent)}
+
+/* ---------- 特別な予定（記念日・誕生日・旅行）。2026-10-11 ---------- */
+.bar2.k-anniv{      /* 記念日の帯は金。字は紺 */
+  background-image:var(--gold-grad); color:var(--navy);
+}
+.cell.sp:not(.today) .dnum{font-weight:700}
+.soon{     /* もうすぐ：立替金の合計と同じ、紺の札に金の数字 */
+  position:relative; overflow:hidden; border:1px solid var(--gold-line); border-radius:14px; color:#f4ecdc;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(239,210,154,.24), transparent 55%),
+    linear-gradient(160deg,var(--navy3),var(--navy));
+  box-shadow:0 6px 18px rgba(15,29,49,.22);
+}
+.soonttl{font-family:var(--mincho); color:rgba(244,236,220,.72); letter-spacing:.24em}
+.soonrow{border-top-color:rgba(203,166,101,.32)}
+.soonrow .kicon{color:var(--gold-hi)}
+.soonrow .st{font-family:var(--mincho)}
+.soonrow .st small{color:var(--gold-hi)}
+.soonrow .sd{color:rgba(244,236,220,.66)}
+.soonrow .sn{
+  font-family:var(--didot); font-size:20px; font-weight:400; letter-spacing:.01em;
+  background:var(--gold-grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.soonrow.now .sn{
+  font-family:var(--mincho); font-size:13px; letter-spacing:.1em; padding:4px 11px;
+  -webkit-background-clip:border-box; background-clip:border-box; color:var(--navy);
+}
+
+/* ---------- 祝日・くり返し・新着・検索（2026-10-11） ---------- */
+.week .bars .bar2.hol{font-family:var(--mincho)}
+.dayttl .holname,.feedday .holname{font-family:var(--mincho); letter-spacing:.06em}
+.reprow{font-family:var(--mincho)}
+.reprow select,.reprow input[type=date]{border-color:var(--gold-line)}
+.newtag{font-family:var(--mincho)}
+.freshbox{border-radius:14px}
+.freshttl b{font-family:var(--mincho); letter-spacing:.06em}
+.search input{border-color:var(--gold-line); font-family:var(--mincho); box-shadow:var(--shadow)}

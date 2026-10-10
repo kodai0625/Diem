@@ -5,6 +5,7 @@
   --sun:#c0645c; --sat:#4a7a9b;
   --me:#3f6f8f; --you:#c1766f; --other:#6f8f6a;
   --shared:#3f6f8f; --mine:#4f8a6c;   /* 予定の色：2人の予定／自分だけ */
+  --k-anniv:#b0863c; --k-birth:#b85c6e; --k-trip:#2b7c87;   /* 特別な予定：記念日／誕生日／旅行 */
   --accent:#3f6f8f; --danger:#b7524a; --ok:#4e8c5a; --warn:#c68a2e;
   --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.05);
   --on:#ffffff;   /* 色の上に乗せる文字の色 */
@@ -19,6 +20,7 @@
     --sun:#d98a80; --sat:#7fb0cf;
     --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
     --shared:#7fb0cf; --mine:#8cc4a5;
+    --k-anniv:#e3c17a; --k-birth:#e596a4; --k-trip:#7cc6cf;
     --accent:#7fb0cf;
     --on:#111619;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
@@ -30,6 +32,7 @@
   --sun:#d98a80; --sat:#7fb0cf;
   --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
   --shared:#7fb0cf; --mine:#8cc4a5;
+  --k-anniv:#e3c17a; --k-birth:#e596a4; --k-trip:#7cc6cf;
   --accent:#7fb0cf;
   --on:#111619;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
@@ -298,3 +301,97 @@ button{cursor:pointer}
   background:rgba(20,25,30,.92); color:#fff; padding:9px 16px; border-radius:999px; font-size:13px;
   box-shadow:0 4px 16px rgba(0,0,0,.3);
 }
+
+/* ---------- 特別な予定（記念日・誕生日・旅行）を強調する。2026-10-11 ----------
+   印（ハート・ケーキ・飛行機）は、形を切り抜く型（mask）として使い、色は文字の色で付ける */
+:root{
+  --ic-anniv:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.6C5.4 16 2 12.7 2 8.8 2 6 4.2 3.9 6.9 3.9c2 0 3.7 1 5.1 3 1.4-2 3.1-3 5.1-3C19.8 3.9 22 6 22 8.8c0 3.9-3.4 7.2-10 11.800z'/%3E%3C/svg%3E");
+  --ic-birth:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='2.9' r='1.8'/%3E%3Crect x='11' y='5.4' width='2' height='4.2' rx='.6'/%3E%3Cpath d='M6.6 10.4h10.8a2 2 0 0 1 2 2V15H4.6v-2.6a2 2 0 0 1 2-2z'/%3E%3Cpath d='M2.8 16.4h18.4V20a1.6 1.6 0 0 1-1.6 1.6H4.400A1.600 1.600 0 0 1 2.800 20z'/%3E%3C/svg%3E");
+  --ic-trip:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 16v-2l-8-5V3.500C13 2.670 12.330 2 11.500 2S10 2.670 10 3.500V9l-8 5v2l8-2.500V19l-2 1.500V22l3.500-1 3.500 1v-1.500L13 19v-5.500l8 2.500z' transform='rotate(45 12 12)'/%3E%3C/svg%3E");
+}
+.k-anniv{--ic:var(--ic-anniv); --k:var(--k-anniv)}
+.k-birth{--ic:var(--ic-birth); --k:var(--k-birth)}
+.k-trip{--ic:var(--ic-trip); --k:var(--k-trip)}
+.kicon,.spmark,.bar2.k-trip::before{
+  background:currentColor;
+  -webkit-mask:var(--ic) center/contain no-repeat; mask:var(--ic) center/contain no-repeat;
+}
+.kicon{display:inline-block; width:13px; height:13px; margin-right:5px; vertical-align:-1.5px; flex:0 0 auto; color:var(--k)}
+/* 月の表：記念日・誕生日の日は、左上にしるし、日付の数字もその色に */
+.spmark{position:absolute; top:5px; left:3px; width:11px; height:11px; color:var(--k); pointer-events:none}
+.cell.sp:not(.today) .dnum{color:var(--k); font-weight:800}
+/* 旅行の帯は、頭に飛行機（次の週へ続いた分には付けない） */
+.bar2.k-trip::before{content:''; display:inline-block; width:9px; height:9px; margin-right:3px; vertical-align:-1px}
+.bar2.k-trip.contL::before{display:none}
+/* その日の一覧 */
+.card.sp{border-color:color-mix(in srgb, var(--k) 45%, var(--line))}
+/* 入力の窓：種類を選ぶ段 */
+.seg.kinds{margin-top:8px}
+.seg.kinds button{font-size:12.5px; padding-left:2px; padding-right:2px; white-space:nowrap}
+.seg.kinds .kicon{width:12px; height:12px; margin-right:3px}
+.seg button.on .kicon{color:inherit}
+#f-yearly-row{margin-top:2px}
+/* もうすぐ（近い記念日・誕生日・旅行） */
+.soon{
+  margin:2px 0 16px; padding:10px 12px 4px; border-radius:var(--r);
+  background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);
+}
+.soonttl{font-size:12px; color:var(--dim); letter-spacing:.12em; margin-bottom:2px}
+.soonrow{
+  -webkit-appearance:none; appearance:none; display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  background:none; border:0; border-top:1px dashed var(--line); border-radius:0; padding:9px 0; color:inherit; font:inherit;
+}
+.soonttl + .soonrow{border-top:0}
+.soonrow .kicon{width:19px; height:19px; margin:0}
+.soonrow .sbody{flex:1; min-width:0; display:block}
+.soonrow .st{display:block; font-weight:600; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.soonrow .st small{font-size:11.5px; font-weight:600; color:var(--k); margin-left:7px}
+.soonrow .sd{display:block; font-size:12px; color:var(--dim)}
+.soonrow .sn{font-size:15px; color:var(--k); white-space:nowrap}
+.soonrow.now .sn{background:var(--k); color:var(--on); padding:3px 10px; border-radius:999px; font-size:12.5px}
+
+/* ---------- 祝日（2026-10-11）。名前は月の表の一番上の段に赤い字で、日付の数字も赤に ---------- */
+.cell.hol:not(.today):not(.sp) .dnum{color:var(--sun)}
+.week .bars .bar2.hol{
+  background:none; background-image:none; box-shadow:none; clip-path:none; border:0; border-radius:0;
+  color:var(--sun); font-size:8.5px; font-weight:600; padding:0; text-align:center; letter-spacing:-.02em;
+}
+.dayttl .holname,.feedday .holname{
+  font-size:11.5px; color:var(--sun); white-space:nowrap; padding:0 8px; border-radius:999px;
+  border:1px solid color-mix(in srgb, var(--sun) 45%, transparent);
+}
+
+/* ---------- くり返し（入力の窓の段）。字は16pxに（それより小さいと、iPhone が押したとき画面を拡大する） ---------- */
+.reprow{display:flex; align-items:center; flex-wrap:wrap; gap:6px 10px; margin-top:8px; font-size:13px; color:var(--dim)}
+.reprow select,.reprow input[type=date]{
+  font:inherit; font-size:16px; color:var(--ink); background:var(--card);
+  border:1px solid var(--line); border-radius:10px; padding:6px 8px; min-width:0;
+}
+.reprow .until{display:flex; align-items:center; gap:6px}
+
+/* ---------- 新着のしるし（相手が足した・直した予定） ---------- */
+.newtag{
+  font-style:normal; font-size:10px; font-weight:700; letter-spacing:.04em; color:#fff; background:#c9574c;
+  border-radius:999px; padding:1px 7px; margin-right:6px; vertical-align:1.5px;
+}
+.bar2.fresh::after{     /* 月の表の帯の右端に、小さな点 */
+  content:''; position:absolute; right:3px; top:2px; width:5px; height:5px; border-radius:50%;
+  background:#ffd76a; box-shadow:0 0 0 1px rgba(0,0,0,.3);
+}
+.tab.fresh{background-image:radial-gradient(circle at calc(50% + 2.9em) 34%, #ffd76a 0 3px, transparent 3.6px)}
+.freshbox{
+  margin:2px 0 16px; padding:10px 10px 4px; border-radius:var(--r);
+  border:1px solid color-mix(in srgb, #c9574c 40%, var(--line)); background:color-mix(in srgb, #c9574c 5%, var(--card));
+}
+.freshttl{display:flex; align-items:center; gap:8px; margin:0 2px 6px}
+.freshttl b{font-size:14px}
+.freshttl span{font-size:12px; color:var(--dim); flex:1}
+.sdate{font-size:12px; color:var(--dim); margin:8px 4px 4px}
+
+/* ---------- 検索（「これから」の上の欄） ---------- */
+.search{margin:0 0 12px}
+.search input{
+  -webkit-appearance:none; appearance:none; width:100%; font:inherit; font-size:16px; color:var(--ink);
+  background:var(--card); border:1px solid var(--line); border-radius:999px; padding:9px 16px;
+}
+.search input:focus{outline:2px solid var(--accent); outline-offset:1px}
