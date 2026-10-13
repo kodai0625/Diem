@@ -14,8 +14,8 @@
 }
 .tab .fpad{margin-right:5px; visibility:hidden}
 .tab .fdot{margin-left:5px; background:transparent}
-/* 色は予定の帯と同じ意味（青＝2人の予定、緑＝自分だけ）。紺の見出しの上なので明るい方の色を使う */
-.tab[data-filter="shared"] .fdot{background:#86b3d1; box-shadow:0 0 0 1.5px rgba(255,255,255,.5)}
+/* 色は予定の帯と同じ意味（青と銅の半分ずつ＝2人の予定、緑＝自分だけ）。紺の見出しの上なので明るい方の色を使う */
+.tab[data-filter="shared"] .fdot{background:linear-gradient(90deg,#86b3d1 50%,#e9a06f 50%); box-shadow:0 0 0 1.5px rgba(255,255,255,.5)}
 .tab[data-filter="private"] .fdot{background:#8cc7a8; box-shadow:0 0 0 1.5px rgba(255,255,255,.5)}
 
 /* 「これから」には新着の点（金）も付く。絞り込みの点と重ならないよう、新着の点を外へずらす */

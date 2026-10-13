@@ -103,15 +103,15 @@
     h += '<div class="secttl">名前と色</div><div class="card">'
       + row('自分の名前', m.me || '（未設定）', 'name-me')
       + row('相手の名前', m.partner || '（未設定）', 'name-you')
-      + '<div class="setrow"><div><div class="k">予定の色</div><div class="d">左が2人の予定、右が自分だけの予定</div></div>'
-      + '<div style="display:flex;gap:8px">'
-      + '<span class="swatch" style="background:var(--shared)"></span>'
-      + '<span class="swatch" style="background:var(--mine)"></span>'
-      + '</div></div>'
-      + '<div class="setrow"><div><div class="k">人の色</div><div class="d">立替金で、自分と相手を見分ける色</div></div>'
+      // 2人の予定は「入れた人」、立替金は「払った人」の色で出る（2026-10-13 から、予定も人の色で分ける）
+      + '<div class="setrow"><div><div class="k">人の色</div><div class="d">左が自分、右が相手。2人の予定は入れた人の色、立替金は払った人の色で出ます</div></div>'
       + '<div style="display:flex;gap:8px">'
       + '<span class="swatch" style="background:' + PB.Who.color(m.me || '自分') + '"></span>'
       + '<span class="swatch" style="background:' + PB.Who.color(m.partner || '相手') + '"></span>'
+      + '</div></div>'
+      + '<div class="setrow"><div><div class="k">自分だけの予定の色</div><div class="d">相手には見えない予定</div></div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<span class="swatch" style="background:var(--mine)"></span>'
       + '</div></div>'
       + '</div>';
 

@@ -3,8 +3,8 @@
   --paper:#f7f4ee; --card:#ffffff; --ink:#25313c; --dim:#71797f;
   --line:#e2dccf; --head:#2c3e50; --head2:#3d566e;
   --sun:#c0645c; --sat:#4a7a9b;
-  --me:#3f6f8f; --you:#c1766f; --other:#6f8f6a;
-  --shared:#3f6f8f; --mine:#4f8a6c;   /* 予定の色：2人の予定／自分だけ */
+  --me:#3f6f8f; --you:#b96a40; --other:#6f8f6a;   /* 人の色：自分／相手（2人の予定は入れた人、立替金は払った人） */
+  --mine:#4f8a6c;   /* 自分だけの予定の色 */
   --k-anniv:#b0863c; --k-birth:#b85c6e; --k-trip:#2b7c87;   /* 特別な予定：記念日／誕生日／旅行 */
   --accent:#3f6f8f; --danger:#b7524a; --ok:#4e8c5a; --warn:#c68a2e;
   --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.05);
@@ -18,8 +18,8 @@
     --paper:#161a1e; --card:#1e242a; --ink:#e6e3dc; --dim:#9aa3aa;
     --line:#2f373f; --head:#101519; --head2:#1b242c;
     --sun:#d98a80; --sat:#7fb0cf;
-    --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
-    --shared:#7fb0cf; --mine:#8cc4a5;
+    --me:#7fb0cf; --you:#e9a06f; --other:#93b88c;
+    --mine:#8cc4a5;
     --k-anniv:#e3c17a; --k-birth:#e596a4; --k-trip:#7cc6cf;
     --accent:#7fb0cf;
     --on:#111619;
@@ -30,8 +30,8 @@
   --paper:#161a1e; --card:#1e242a; --ink:#e6e3dc; --dim:#9aa3aa;
   --line:#2f373f; --head:#101519; --head2:#1b242c;
   --sun:#d98a80; --sat:#7fb0cf;
-  --me:#7fb0cf; --you:#e0958d; --other:#93b88c;
-  --shared:#7fb0cf; --mine:#8cc4a5;
+  --me:#7fb0cf; --you:#e9a06f; --other:#93b88c;
+  --mine:#8cc4a5;
   --k-anniv:#e3c17a; --k-birth:#e596a4; --k-trip:#7cc6cf;
   --accent:#7fb0cf;
   --on:#111619;
@@ -182,9 +182,10 @@ button{cursor:pointer}
 .row .sub{display:block; font-size:12px; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .tag{font-size:10.5px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--dim); white-space:nowrap}
 .tag.priv{border-color:var(--mine); color:var(--mine)}
+.tag.who{border-color:var(--c); color:var(--c)}      /* 2人の予定の名札：入れた人の色（月の表の帯と同じ色） */
 /* 色の見本の点（絞り込みの札・予定の窓の切り替え） */
 .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:.5px}
-.dot.shared{background:var(--shared)} .dot.mine{background:var(--mine)}
+.dot.shared{background:linear-gradient(90deg,var(--me) 50%,var(--you) 50%)} .dot.mine{background:var(--mine)}   /* 2人の予定は、2人の色を半分ずつ */
 .on > .dot{box-shadow:0 0 0 1.5px rgba(255,255,255,.75)}
 .empty{color:var(--dim); font-size:13px; text-align:center; padding:18px 8px}
 

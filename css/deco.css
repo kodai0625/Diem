@@ -20,8 +20,8 @@
   --paper:#f5f1e8; --card:#fffdf8; --ink:#1c2838; --dim:#6f7478; --line:#e6ddcb;
   --head:var(--navy); --head2:var(--navy2);
   --accent:#1f3a5c; --on:#ffffff;
-  --me:#3b6a8c; --you:#b8736a;
-  --shared:#34628a; --mine:#4d8a6e;
+  --me:#3b6a8c; --you:#b96a40;   /* 人の色。相手は銅色（誕生日のばら色と見分けがつくよう、2026-10-13 にだいだい寄りへ） */
+  --mine:#4d8a6e;
   --shadow:0 1px 1px rgba(15,29,49,.05),0 8px 24px rgba(15,29,49,.08);
 
   /* 押すもの（明るい画面は紺に金の縁、暗い画面は金） */
@@ -37,8 +37,8 @@
     --paper:#0b1524; --card:#13213a; --ink:#ede7da; --dim:#9aa3ad; --line:#26374f;
     --head:#070f1b; --head2:#12233b;
     --accent:#d9b877; --on:#0c1626;
-    --me:#86b3d1; --you:#e29d93;
-    --shared:#86b3d1; --mine:#8cc7a8;
+    --me:#86b3d1; --you:#e9a06f;
+    --mine:#8cc7a8;
     --gold-lo:#d9b877;
     --shadow:0 1px 1px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.45);
     --btn-bg:var(--gold-grad); --btn-ink:#0c1626;
@@ -52,8 +52,8 @@
   --paper:#0b1524; --card:#13213a; --ink:#ede7da; --dim:#9aa3ad; --line:#26374f;
   --head:#070f1b; --head2:#12233b;
   --accent:#d9b877; --on:#0c1626;
-  --me:#86b3d1; --you:#e29d93;
-  --shared:#86b3d1; --mine:#8cc7a8;
+  --me:#86b3d1; --you:#e9a06f;
+  --mine:#8cc7a8;
   --gold-lo:#d9b877;
   --shadow:0 1px 1px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.45);
   --btn-bg:var(--gold-grad); --btn-ink:#0c1626;

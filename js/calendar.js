@@ -58,14 +58,21 @@
     color: function (name) {
       var m = Store.meta();
       if (m.colors && m.colors[name]) return m.colors[name];
-      if (name === m.me) return css('--me');
-      if (name === m.partner) return css('--you');
+      if (name === Who.me()) return css('--me');
+      if (name === Who.partner()) return css('--you');
       return css('--other');
     }
   };
 
-  /** 予定の色は、人ではなく「2人の予定か、自分だけか」で分ける（2026-09-30 から） */
-  function evColor(e) { return css(e.scope === 'private' ? '--mine' : '--shared'); }
+  /* 予定の色（2026-10-13 から。ko-dai さん「どちらが入れた予定か色でわかるように」）
+     ・自分だけの予定 … 緑（--mine）
+     ・2人の予定 … 入れた人の色（自分＝--me、相手＝--you。立替金と同じ「人の色」）
+     ・入れた人は owner（入れたときの名前）で見分ける。あとから相手が直しても、入れた人は変わらない
+     ★自分・相手は端末ごとに決まる。同じ予定でも、相手の端末では「相手の色」ではなく「自分の色」で出る
+     ★記念日・誕生日・旅行は、帯は種類の色のまま（barColor）。だれが入れたかは一覧の名札の色で分かる */
+  function byMe(e) { return !e.owner || e.owner === Who.me(); }
+  function whoColor(e) { return Who.color(byMe(e) ? Who.me() : Who.partner()); }
+  function evColor(e) { return e.scope === 'private' ? css('--mine') : whoColor(e); }
 
   /* ---------- 特別な予定（記念日・誕生日・旅行）と、くり返し（2026-10-11） ----------
      ・kind … 'anniv'（記念日）／'birth'（誕生日）／'trip'（旅行）／''（ふつう）。月の表や一覧で強調して出す
@@ -346,7 +353,7 @@
       + '<span class="sub">' + U.esc(bits.join('　')) + '</span></span>'
       + (e.scope === 'private'
           ? '<span class="tag priv">自分だけ</span>'
-          : '<span class="tag">' + U.esc(e.owner || '') + '</span>')
+          : '<span class="tag who" style="--c:' + whoColor(e) + '">' + U.esc(e.owner || '') + '</span>')
       + '</button></div>';
   }
 
@@ -592,7 +599,7 @@
       + '<button type="button" class="go small" id="f-save">保存</button></div>'
       + '<input type="text" class="bigtitle" id="f-title" value="' + U.esc(draft.title) + '" placeholder="予定の題名" enterkeyhint="done" autocomplete="off">'
       + '<div class="seg" id="f-scope">'
-        + '<button type="button" data-v="shared"' + (draft.scope === 'shared' ? ' class="on"' : '') + '><i class="dot shared"></i>2人で共有</button>'
+        + '<button type="button" data-v="shared"' + (draft.scope === 'shared' ? ' class="on"' : '') + '><i class="dot" style="background:' + whoColor(e) + '"></i>2人で共有</button>'
         + '<button type="button" data-v="private"' + (draft.scope === 'private' ? ' class="on"' : '') + '><i class="dot mine"></i>自分だけ</button>'
       + '</div>'
       + '<div class="seg kinds" id="f-kind" aria-label="予定の種類">'
