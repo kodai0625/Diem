@@ -410,7 +410,11 @@
     return h + '</div>';
   }
 
-  /* ---------- 新着（相手が足した・直した予定。開くか「見た」を押すまで残る） ---------- */
+  /* ---------- 新着（相手が足した・直した予定。開くか「見た」を押すまで残る） ----------
+     ★2026-10-21 から、この欄は出していない（ko-dai さん「新着の部分を非表示に」。私用・配布用とも）。
+       下の renderFeed で呼ぶのをやめただけなので、また出すときは呼び出しを1か所戻せばよい。
+       一覧の「新着」「変更」の札と、月の表の帯の点は、そのまま出している（その予定を開くと消える）。
+       「これから」のタブの金の点は、欄と一緒に出さなくした（下の render） */
   function freshHtml(today) {
     var ids = Object.keys(fresh);
     if (!ids.length) return '';
@@ -503,8 +507,8 @@
     }
 
     var dates = Object.keys(byDate).sort();
-    // 自分だけにしぼっているあいだは、新着（相手から来たもの）と「もうすぐ」の欄も出さない
-    var html = mineOnly ? '' : freshHtml(today) + soonHtml(today);
+    // 新着の欄は出さない（2026-10-21 から。上の freshHtml の説明）。自分だけにしぼっているあいだは「もうすぐ」の欄も出さない
+    var html = mineOnly ? '' : soonHtml(today);
     if (!dates.length) {
       el.innerHTML = html + '<div class="card"><div class="empty">これから90日' + (mineOnly ? '、自分だけの予定' : 'の予定')
         + 'はありません。<br>右下の ＋ から足せます</div></div>';
@@ -531,9 +535,10 @@
   function render() {
     fresh = Store.fresh();
     renderGrid(); renderDay(); renderFeed();
-    // 新着があるあいだ、「これから」のタブに点を付ける
+    // 「これから」のタブの金の点（新着があるしるし）は、2026-10-21 から出さない。
+    // 点は新着の欄へ案内するためのもので、欄が無いと何が新しいか見つけられず、昔の日の予定だと点が消えなくなるため
     var tab = document.querySelector('.tab[data-view="feed"]');
-    if (tab) tab.classList.toggle('fresh', Object.keys(fresh).length > 0);
+    if (tab) tab.classList.remove('fresh');
   }
 
   /* ---------- 月を送る ---------- */
