@@ -263,7 +263,7 @@
       var e = it.rec;
       if (e.scope === 'private') cls.push('priv');
       if (kindOf(e)) cls.push('k-' + kindOf(e));
-      if (fresh[e.id]) cls.push('fresh');             // 相手が足した・直した予定
+      if (SHOW_FRESH && fresh[e.id]) cls.push('fresh');   // 相手が足した・直した予定
       style += '--c:' + barColor(e) + ';';
       title = e.title || '（題名なし）';          // 表は題名だけ（幅が狭いので時刻は下の一覧で見せる）
     }
@@ -273,6 +273,10 @@
   }
 
   var fresh = {};      // 相手が足した・直した予定のしるし（描くたびに読み直す）
+  /* 新着のしるしを画面に出すか。★2026-10-21 から出さない（ko-dai さんの指示「新着の部分を非表示に」→「札と点も消して」。私用・配布用とも）。
+     出さないのは4つ全部：「これから」の上の新着の欄／一覧の「新着」「変更」の札／月の表の帯の点／「これから」のタブの金の点。
+     しるしを付ける処理（store.js の applyRows）はそのまま動いているので、また出すときはここを true にするだけでよい */
+  var SHOW_FRESH = false;
 
   function renderGrid() {
     var grid = document.getElementById('grid');
@@ -344,7 +348,7 @@
     if (r) bits.push(REPEATS[r]);
     if (on && dayCount(e, on)) bits.push(dayCount(e, on));
     if (e.memo) bits.push(e.memo.replace(/\n/g, ' '));
-    var f = fresh[e.id];
+    var f = SHOW_FRESH && fresh[e.id];
     return '<div class="card' + (k ? ' sp k-' + k : '') + '"><button type="button" class="row" data-ev="' + e.id + '">'
       + '<span class="bar' + (e.scope === 'private' ? ' priv' : '') + '" style="--c:' + c + '"></span>'
       + '<span class="body"><span class="ttl">'
@@ -411,10 +415,7 @@
   }
 
   /* ---------- 新着（相手が足した・直した予定。開くか「見た」を押すまで残る） ----------
-     ★2026-10-21 から、この欄は出していない（ko-dai さん「新着の部分を非表示に」。私用・配布用とも）。
-       下の renderFeed で呼ぶのをやめただけなので、また出すときは呼び出しを1か所戻せばよい。
-       一覧の「新着」「変更」の札と、月の表の帯の点は、そのまま出している（その予定を開くと消える）。
-       「これから」のタブの金の点は、欄と一緒に出さなくした（下の render） */
+     ★2026-10-21 から出していない（上の SHOW_FRESH） */
   function freshHtml(today) {
     var ids = Object.keys(fresh);
     if (!ids.length) return '';
@@ -507,8 +508,8 @@
     }
 
     var dates = Object.keys(byDate).sort();
-    // 新着の欄は出さない（2026-10-21 から。上の freshHtml の説明）。自分だけにしぼっているあいだは「もうすぐ」の欄も出さない
-    var html = mineOnly ? '' : soonHtml(today);
+    // 自分だけにしぼっているあいだは、新着（相手から来たもの）と「もうすぐ」の欄も出さない
+    var html = mineOnly ? '' : (SHOW_FRESH ? freshHtml(today) : '') + soonHtml(today);
     if (!dates.length) {
       el.innerHTML = html + '<div class="card"><div class="empty">これから90日' + (mineOnly ? '、自分だけの予定' : 'の予定')
         + 'はありません。<br>右下の ＋ から足せます</div></div>';
@@ -535,10 +536,9 @@
   function render() {
     fresh = Store.fresh();
     renderGrid(); renderDay(); renderFeed();
-    // 「これから」のタブの金の点（新着があるしるし）は、2026-10-21 から出さない。
-    // 点は新着の欄へ案内するためのもので、欄が無いと何が新しいか見つけられず、昔の日の予定だと点が消えなくなるため
+    // 新着があるあいだ、「これから」のタブに点を付ける（新着の欄へ案内するしるしなので、欄を出すときだけ）
     var tab = document.querySelector('.tab[data-view="feed"]');
-    if (tab) tab.classList.remove('fresh');
+    if (tab) tab.classList.toggle('fresh', SHOW_FRESH && Object.keys(fresh).length > 0);
   }
 
   /* ---------- 月を送る ---------- */
