@@ -1,6 +1,6 @@
 /* Diem データの入れ物
    ・すべて端末の localStorage に持ちます（電波がなくても入力できます）
-   ・「2人で共有」の予定と立替金だけが送信箱に積まれ、あとでサーバーへ送られます
+   ・「2人で共有」の予定・立替金・やりたいことだけが送信箱に積まれ、あとでサーバーへ送られます
    ・「自分だけ」の予定は送信箱に入れません。端末の外へは出ません */
 (function (global) {
   'use strict';
@@ -8,9 +8,16 @@
   var KEY_DATA = 'diem.data';
   var KEY_META = 'diem.meta';
 
-  var KINDS = ['event', 'trip', 'expense', 'settle'];
+  // wish（やりたいこと・行きたい場所）と wnote（それに書き足したこと）は 2026-10-23 に足した（wish.js）
+  var KINDS = ['event', 'trip', 'expense', 'settle', 'wish', 'wnote'];
 
-  var data = null;   // { event:{id:rec}, trip:{}, expense:{}, settle:{} }
+  /* ★記録の種類を足したら DATA_V を1つ上げる。
+     前の版は、知らない種類の行を受け取っても捨てたまま「次に受け取る目印（since）」だけ進めてしまう。
+     そのままだと、版が上がったあとも捨てた分を二度と受け取れないので、
+     DATA_V が上がった端末は1回だけ最初から取り込み直す（load の中） */
+  var DATA_V = 2;
+
+  var data = null;   // { event:{id:rec}, trip:{}, expense:{}, settle:{}, wish:{}, wnote:{} }
   var meta = null;   // { since, me, partner, members, pin, syncUrl, outbox:[{kind,id}], filter }
 
   function emptyData() {
@@ -30,7 +37,8 @@
       outbox: [],
       lastSyncAt: 0,
       lastTrip: '',
-      fresh: {}         // 相手が足した・直した予定のしるし { 予定のid: 'new'（足した）｜'upd'（直した） }。この端末の中だけ
+      fresh: {},        // 相手が足した・直した予定のしるし { 予定のid: 'new'（足した）｜'upd'（直した） }。この端末の中だけ
+      dataV: DATA_V     // どの種類まで受け取れる版か（上の DATA_V）
     };
   }
 
@@ -52,9 +60,15 @@
     data = read(KEY_DATA, null) || emptyData();
     KINDS.forEach(function (k) { if (!data[k]) data[k] = {}; });
     var m = read(KEY_META, null) || defaultMeta();
+    var upgraded = (Number(m.dataV) || 1) < DATA_V;   // dataV が無い＝種類を足す前の版
     var def = defaultMeta();
     Object.keys(def).forEach(function (k) { if (!(k in m)) m[k] = def[k]; });
     meta = m;
+    if (upgraded) {
+      meta.since = 0;          // 前の版が捨てた行も受け取るため、最初から取り込み直す（since が 0 なら新着のしるしも付かない）
+      meta.dataV = DATA_V;
+      saveMeta();
+    }
   }
 
   function saveData() { write(KEY_DATA, data); }

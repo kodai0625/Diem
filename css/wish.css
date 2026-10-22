@@ -1,0 +1,113 @@
+/* Diem やりたいこと（2人でやりたいこと・行きたい場所）の見た目。js/wish.js と対になっている
+   style.css・deco.css・rococo.css のあとに読む
+
+   色は1つ（すみれ色）。やりたいこと（星）と行きたい場所（ピン）は印の形で見分ける。
+   ★予定・人・特別な予定の色はもう埋まっているので、種類ごとに色を分けると見分けにくくなるため */
+:root{
+  --wish:#9a5ba8;
+  --ic-wdo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.4l2.9 6.2 6.7.8-5 4.6 1.4 6.7L12 17.4l-6 3.3 1.4-6.7-5-4.6 6.7-.8z'/%3E%3C/svg%3E");
+  --ic-wgo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 1.8a7.4 7.4 0 0 0-7.4 7.4c0 5.4 7.4 13 7.4 13s7.4-7.6 7.4-13A7.4 7.4 0 0 0 12 1.8zm0 10.2a2.8 2.8 0 1 1 0-5.6 2.8 2.8 0 0 1 0 5.6z'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --wish:#cf9bd9; }
+}
+:root[data-theme="dark"]{ --wish:#cf9bd9; }
+
+/* 印（星・ピン）。形を切り抜く型（mask）として使い、色はすみれ色 */
+.w-do{--ic:var(--ic-wdo)}
+.w-go{--ic:var(--ic-wgo)}
+.wicon{
+  display:inline-block; width:13px; height:13px; margin-right:5px; vertical-align:-1.5px; flex:0 0 auto;
+  background:var(--wish);
+  -webkit-mask:var(--ic) center/contain no-repeat; mask:var(--ic) center/contain no-repeat;
+}
+.chip.on .wicon,.seg button.on .wicon{background:currentColor}
+.seg .wicon{width:12px; height:12px; margin-right:4px}
+
+/* ---------- 上のタブ ---------- */
+/* タブが4つになったので、字の間を少し詰めて、折り返さないようにする（幅 375 の iPhone でも1行） */
+.tabs .tab{white-space:nowrap; letter-spacing:.08em; padding-left:2px; padding-right:2px}
+
+/* ---------- 「やりたい」の画面 ---------- */
+/* ★絞り込みの札は .filters を使わない（私用は .filters を丸ごと隠しているため） */
+.wfilters{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap}
+.wfilters .chip{padding:5px 9px; letter-spacing:.02em}     /* 4つが幅 375 でも1行に収まるように */
+.wfilters .chip .wicon{width:11px; height:11px; margin-right:3px}
+
+.bar.wbar{background:var(--wish)}
+.wcard.wdone .ttl{color:var(--dim)}
+.wcard.wdone .bar.wbar{opacity:.45}
+.wcheck{
+  font-style:normal; font-size:10px; font-weight:700; letter-spacing:.04em; color:var(--on); background:var(--wish);
+  border-radius:999px; padding:1px 7px; margin-right:6px; vertical-align:1.5px;
+}
+.feedday.wdate{flex-wrap:wrap}
+.wleft{font-size:12px; color:var(--wish) !important; font-weight:600}
+.feedday .dayadd{margin-left:auto}
+
+/* ---------- カレンダー ---------- */
+/* 行く日が決まっている日：升目の右上に、すみれ色の点 */
+.wmark{
+  position:absolute; top:6px; right:5px; width:6px; height:6px; border-radius:50%;
+  background:var(--wish); box-shadow:0 0 0 1.5px var(--card); pointer-events:none;
+}
+/* その日の欄の「この日にやることを選ぶ」 */
+.wpickbtn{
+  display:flex; align-items:center; justify-content:center; gap:2px; width:100%;
+  margin:6px 0 8px; padding:10px; border-radius:var(--r);
+  border:1px dashed color-mix(in srgb, var(--wish) 55%, var(--line)); background:transparent;
+  color:var(--wish); font-size:13px; font-weight:600;
+}
+
+/* ---------- 1件を開いた窓 ---------- */
+.modal h2.wh{display:flex; align-items:center; font-size:14px; color:var(--wish)}
+.wh .wicon{width:15px; height:15px}
+.wtitle{font-family:var(--mincho, inherit); font-size:21px; font-weight:700; line-height:1.4; margin:4px 2px 6px; word-break:break-word}
+.wby{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--dim); margin:0 2px 12px}
+.wplanrow{display:flex; align-items:center; gap:8px 10px; flex-wrap:wrap}
+.wplanrow .k{font-size:12.5px; color:var(--dim); min-width:4em}
+.wplanrow b{font-size:15px}
+.wtime{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--dim)}
+/* 字は16pxに（それより小さいと、iPhone が押したとき画面を拡大する） */
+.wplanrow input,.wadd textarea{
+  font:inherit; font-size:16px; color:var(--ink); background:var(--card);
+  border:1px solid var(--line); border-radius:10px; padding:6px 8px; min-width:0;
+}
+.wplanhint{display:flex; align-items:center; gap:4px 10px; flex-wrap:wrap; font-size:12px; color:var(--dim); margin-top:8px}
+.wplanhint b{color:var(--wish)}
+.linkbtn{border:0; background:none; color:var(--accent); font-size:12px; padding:2px 0; text-decoration:underline; margin-left:auto}
+
+.winfo .irow{display:flex; gap:10px; padding:8px 0; border-bottom:1px dashed var(--line); font-size:14px}
+.winfo .irow:last-child{border-bottom:0}
+.winfo .k{flex:0 0 4.2em; font-size:12px; color:var(--dim); padding-top:2px}
+.winfo .v{flex:1; min-width:0; word-break:break-word; white-space:pre-wrap}
+.winfo a,.wnote a{color:var(--accent); word-break:break-all}
+.maplinks{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; white-space:normal}
+.maplinks a{
+  font-size:12px; border:1px solid var(--line); border-radius:999px; padding:3px 10px;
+  text-decoration:none; color:var(--ink); background:var(--card); white-space:nowrap; word-break:normal;
+}
+
+.wnote{padding:9px 0; border-bottom:1px dashed var(--line)}
+.wnote:last-child{border-bottom:0}
+.wnote .nh{display:flex; align-items:baseline; gap:8px; font-size:12px}
+.wnote .nh span{color:var(--dim); flex:1}
+.nedit{border:0; background:none; color:var(--dim); font-size:12px; padding:0 2px}
+.wnote .nt{font-size:14px; white-space:pre-wrap; word-break:break-word; margin-top:2px}
+.wadd{margin:10px 0 8px}
+.wadd textarea{width:100%; min-height:72px; padding:10px; resize:vertical}
+.mini.wide.wfull{display:block; width:100%}
+
+.f input[type=url]{
+  width:100%; padding:10px; border:1px solid var(--line); border-radius:10px;
+  background:var(--card); color:var(--ink);
+}
+
+/* ---------- 遊ぶ日にやることを選ぶ窓 ---------- */
+.wpick{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px dashed var(--line); font-size:14px}
+.wpick:last-child{border-bottom:0}
+.wpick input{width:20px; height:20px; flex:0 0 auto; margin:0}
+.wpick .wicon{margin-right:0}
+.wpick .pb{flex:1; min-width:0}
+.wpick .pt{display:block; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.wpick .ps{display:block; font-size:11.5px; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}

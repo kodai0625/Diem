@@ -91,6 +91,7 @@
     if (v === 'set') renderSettings();
     if (v === 'cal') PB.Cal.render();
     if (v === 'feed') PB.Cal.renderFeed();
+    if (v === 'wish') PB.Wish.render();
     global.scrollTo(0, 0);
   }
 
@@ -136,7 +137,7 @@
       + '</div>';
 
     h += '<div class="secttl">控え</div><div class="card">'
-      + '<div class="setrow"><div><div class="k">控えを書き出す</div><div class="d">全部の予定と立替金を1つの文字にします</div></div>'
+      + '<div class="setrow"><div><div class="k">控えを書き出す</div><div class="d">全部の予定・立替金・やりたいことを1つの文字にします</div></div>'
       + '<button type="button" class="mini" id="s-out">書き出す</button></div>'
       + '<div class="setrow"><div><div class="k">控えから戻す</div><div class="d">書き出した文字を貼って戻します</div></div>'
       + '<button type="button" class="mini" id="s-in">戻す</button></div>'
@@ -306,6 +307,7 @@
       refresh: function () { PB.Cal.render(); if (view === 'set') renderSettings(); }
     });
 
+    PB.Wish.init(Store);           // ★カレンダーより先に（カレンダーを描くと、やりたいことの一覧も描くため）
     PB.Cal.init(Store);
     PB.Exp.init(Store);
 
@@ -326,6 +328,7 @@
     };
     document.getElementById('fab').onclick = function () {
       if (view === 'cal' || view === 'feed') PB.Cal.add();
+      else if (view === 'wish') PB.Wish.add();
       else if (view === 'exp') PB.Exp.add();
     };
 

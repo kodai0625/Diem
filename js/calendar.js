@@ -11,7 +11,10 @@
    ・くり返し（毎週・毎月・毎年）と、予定の複製
    ・祝日の表示（計算は holidays.js）
    ・相手が足した・直した予定の「新着」のしるし（覚えるのは store.js）
-   ・予定の検索（「これから」の上の欄） */
+   ・予定の検索（「これから」の上の欄）
+
+   2026-10-23：やりたいこと（wish.js）の「この日にやること」を、月の表（右上の点）・その日の欄・「これから」に出す。
+   中身は wish.js が持ち、ここは PB.Wish を呼ぶだけ */
 (function (global) {
   'use strict';
   var PB = global.PB = global.PB || {};
@@ -174,6 +177,9 @@
     }).sort(byTime);
   }
 
+  /** やりたいこと（wish.js）の「この日にやること」を出すか。2人のものなので、「自分だけ」に絞っているときは出さない */
+  function wishOn() { return !!PB.Wish && filter !== 'private'; }
+
   /** その日の「見るだけの項目」。追加の機能（PB.Extra）が入っているときだけ出る。自分だけの側のものとして扱う */
   function extrasOn(dateStr) {
     if (filter === 'shared') return [];
@@ -316,9 +322,11 @@
         if (mark[c]) cls.push('sp', 'k-' + mark[c]);
         var hn = holiday(s);
         if (hn) cls.push('hol');
+        var wn = wishOn() ? PB.Wish.count(s) : 0;          // この日にやること（右上の点）
         html += '<button type="button" class="' + cls.join(' ') + '" data-date="' + s + '" aria-label="' + U.label(s)
-             + (hn ? '　' + hn : '') + (mark[c] ? '（' + KINDS[mark[c]] + '）' : '') + '">'
+             + (hn ? '　' + hn : '') + (mark[c] ? '（' + KINDS[mark[c]] + '）' : '') + (wn ? '　やること' + wn + '件' : '') + '">'
              + (mark[c] ? '<i class="spmark" aria-hidden="true"></i>' : '')
+             + (wn ? '<i class="wmark" aria-hidden="true"></i>' : '')
              + '<span class="dnum">' + d.getDate() + '</span>'
              + (over[c] ? '<span class="more">+' + over[c] + '</span>' : '')
              + '</button>';
@@ -370,12 +378,16 @@
     var html = '<div class="dayttl"><b>' + U.label(sel) + '</b>' + (hn ? '<span class="holname">' + U.esc(hn) + '</span>' : '')
       + '<span>' + (n ? n + '件' : '予定なし') + '</span></div>';
     if (!n) {
-      html += '<div class="card"><div class="empty">この日の予定はまだありません。<br>右下の ＋ か、この日をもう一度押すと足せます</div></div>';
+      // この日にやること（下の欄）があるときは、空の案内を出さない（見出しの「予定なし」で分かる）
+      if (!(wishOn() && PB.Wish.count(sel))) {
+        html += '<div class="card"><div class="empty">この日の予定はまだありません。<br>右下の ＋ か、この日をもう一度押すと足せます</div></div>';
+      }
     } else {
       evs.forEach(function (e) { html += rowHtml(e, sel); });
       xs.forEach(function (t) { html += PB.Extra.rowHtml(t); });
       if (xs.length && PB.Extra.dayHint) html += '<div class="hint" style="margin:2px 4px 0">' + U.esc(PB.Extra.dayHint) + '</div>';
     }
+    if (wishOn()) html += PB.Wish.dayHtml(sel);       // この日にやること（予定とは別の欄）
     el.innerHTML = html;
   }
 
@@ -442,6 +454,8 @@
     if (s.normalize) s = s.normalize('NFKC');
     return s.toLowerCase().replace(/[\u30a1-\u30f6]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
   }
+  U.norm = norm;     // やりたいこと（wish.js）の検索でも使う
+
   function searchHtml(q, today) {
     var words = norm(q).split(/\s+/).filter(Boolean);
     var hits = [];
@@ -479,6 +493,7 @@
     var today = U.ymd(U.today());
     el.onclick = function (ev) {
       if (ev.target.closest('#freshSeen')) { Store.seenAll(); render(); return; }
+      if (PB.Wish && PB.Wish.click(ev)) return;
       var b = ev.target.closest('[data-ev]'); if (!b) return;
       openEvent(b.dataset.ev);
     };
@@ -498,6 +513,11 @@
       var key = s < today ? today : s;           // もう始まっているものは今日に出す
       (byDate[key] = byDate[key] || []).push({ kind: 'event', rec: e, cont: s < today });
     });
+    if (PB.Wish && !mineOnly) {                  // 行く日が決まっている、やりたいこと（2人のもの）
+      PB.Wish.between(today, until).forEach(function (w) {
+        (byDate[w.date] = byDate[w.date] || []).push({ kind: 'wish', rec: w });
+      });
+    }
     if (PB.Extra && PB.Extra.enabled()) {
       for (var d = U.today(), k = 0; k <= 90; k++, d = U.addDays(d, 1)) {
         var ds = U.ymd(d);
@@ -516,8 +536,8 @@
       return;
     }
     dates.forEach(function (ds) {
-      var list = byDate[ds].sort(function (a, b) {
-        if (a.kind !== b.kind) return a.kind === 'event' ? -1 : 1;
+      var list = byDate[ds].sort(function (a, b) {        // 予定 → やりたいこと → 見るだけの項目
+        if (a.kind !== b.kind) return FEED_ORDER[a.kind] - FEED_ORDER[b.kind];
         return a.kind === 'event' ? byTime(a.rec, b.rec) : 0;
       });
       var d = U.parse(ds);
@@ -527,15 +547,18 @@
         + '</div>';
       list.forEach(function (it) {
         if (it.kind === 'extra') { html += PB.Extra.rowHtml(it.rec); return; }
+        if (it.kind === 'wish') { html += PB.Wish.rowHtml(it.rec); return; }
         html += rowHtml(it.rec, ds);
       });
     });
     el.innerHTML = html;
   }
+  var FEED_ORDER = { event: 0, wish: 1, extra: 2 };
 
   function render() {
     fresh = Store.fresh();
     renderGrid(); renderDay(); renderFeed();
+    if (PB.Wish) PB.Wish.render();               // やりたいことの一覧も（記録が変わったときは、いつもここを通る）
     // 新着があるあいだ、「これから」のタブに点を付ける（新着の欄へ案内するしるしなので、欄を出すときだけ）
     var tab = document.querySelector('.tab[data-view="feed"]');
     if (tab) tab.classList.toggle('fresh', SHOW_FRESH && Object.keys(fresh).length > 0);
@@ -787,6 +810,7 @@
         render();
       };
       document.getElementById('dayPanel').onclick = function (ev) {
+        if (PB.Wish && PB.Wish.click(ev)) return;
         var b = ev.target.closest('[data-ev]'); if (!b) return;
         openEvent(b.dataset.ev);
       };

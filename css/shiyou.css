@@ -8,12 +8,14 @@
 /* 2回続けて押しても、画面が拡大しないように（「これから」も2回押しで自分だけにしぼる） */
 .tab[data-view="cal"],.tab[data-view="feed"]{touch-action:manipulation}
 
-/* いまの絞り込みを示す点（字の右）。左の fpad は、字を真ん中に保つための見えない重り */
-.tab .fpad,.tab .fdot{
-  display:inline-block; width:7px; height:7px; border-radius:50%; vertical-align:1.5px;
+/* いまの絞り込みを示す点（字の右上）。
+   ★2026-10-23 にタブが4つ（やりたい）になり、字の横に並べると「カレンダー」が2行に折れたので、
+   点は字に重ねて置き、幅を取らないようにした。左の fpad（字を真ん中に保つ見えない重り）も要らなくなった */
+.tab .fpad{display:none}
+.tab .fdot{
+  position:absolute; top:5px; right:2px;
+  width:7px; height:7px; border-radius:50%; background:transparent;
 }
-.tab .fpad{margin-right:5px; visibility:hidden}
-.tab .fdot{margin-left:5px; background:transparent}
 /* 色は予定の帯と同じ意味（青と銅の半分ずつ＝2人の予定、緑＝自分だけ）。紺の見出しの上なので明るい方の色を使う */
 .tab[data-filter="shared"] .fdot{background:linear-gradient(90deg,#86b3d1 50%,#e9a06f 50%); box-shadow:0 0 0 1.5px rgba(255,255,255,.5)}
 .tab[data-filter="private"] .fdot{background:#8cc7a8; box-shadow:0 0 0 1.5px rgba(255,255,255,.5)}

@@ -11,11 +11,12 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" href="icons/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/style.css?v=b2fd2d9b">
-<link rel="stylesheet" href="css/deco.css?v=b2fd2d9b">
-<link rel="stylesheet" href="css/rococo.css?v=b2fd2d9b">
-<link rel="stylesheet" href="css/tasks.css?v=b2fd2d9b">
-<link rel="stylesheet" href="css/shiyou.css?v=b2fd2d9b">
+<link rel="stylesheet" href="css/style.css?v=812b182a">
+<link rel="stylesheet" href="css/deco.css?v=812b182a">
+<link rel="stylesheet" href="css/rococo.css?v=812b182a">
+<link rel="stylesheet" href="css/wish.css?v=812b182a">
+<link rel="stylesheet" href="css/tasks.css?v=812b182a">
+<link rel="stylesheet" href="css/shiyou.css?v=812b182a">
 </head>
 <body>
 
@@ -62,6 +63,7 @@
   <nav class="tabs" id="tabs">
     <button type="button" class="tab on" data-view="cal">カレンダー</button>
     <button type="button" class="tab" data-view="feed">これから</button>
+    <button type="button" class="tab" data-view="wish">やりたい</button>
     <button type="button" class="tab" data-view="exp">立替金</button>
   </nav>
 </header>
@@ -99,6 +101,23 @@
     <div id="feedBody"></div>
   </section>
 
+  <!-- ============ やりたいこと・行きたい場所 ============ -->
+  <section id="view-wish" class="view">
+    <div class="search">
+      <input type="search" id="wishSearch" placeholder="さがす（題名・場所・メモ・書き足し）" autocomplete="off" enterkeyhint="search" aria-label="やりたいことをさがす">
+    </div>
+    <div class="wfilters" id="wishFilters">
+      <button type="button" class="chip on" data-w="all">全部</button>
+      <button type="button" class="chip" data-w="do"><i class="wicon w-do"></i>やりたいこと</button>
+      <button type="button" class="chip" data-w="go"><i class="wicon w-go"></i>行きたい場所</button>
+      <button type="button" class="chip" data-w="done">行った</button>
+    </div>
+    <div class="trippick">
+      <button type="button" class="mini wide" id="wishPlan">遊ぶ日にやることを選ぶ</button>
+    </div>
+    <div id="wishBody"></div>
+  </section>
+
   <!-- ============ 立替金 ============ -->
   <section id="view-exp" class="view">
     <div class="trippick">
@@ -122,14 +141,15 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="js/config.js?v=b2fd2d9b"></script>
-<script src="js/store.js?v=b2fd2d9b"></script>
-<script src="js/sync.js?v=b2fd2d9b"></script>
-<script src="js/holidays.js?v=b2fd2d9b"></script>
-<script src="js/calendar.js?v=b2fd2d9b"></script>
-<script src="js/expense.js?v=b2fd2d9b"></script>
-<script src="js/tasks.js?v=b2fd2d9b"></script>
-<script src="js/app.js?v=b2fd2d9b"></script>
-<script src="js/shiyou.js?v=b2fd2d9b"></script>
+<script src="js/config.js?v=812b182a"></script>
+<script src="js/store.js?v=812b182a"></script>
+<script src="js/sync.js?v=812b182a"></script>
+<script src="js/holidays.js?v=812b182a"></script>
+<script src="js/calendar.js?v=812b182a"></script>
+<script src="js/expense.js?v=812b182a"></script>
+<script src="js/wish.js?v=812b182a"></script>
+<script src="js/tasks.js?v=812b182a"></script>
+<script src="js/app.js?v=812b182a"></script>
+<script src="js/shiyou.js?v=812b182a"></script>
 </body>
 </html>
