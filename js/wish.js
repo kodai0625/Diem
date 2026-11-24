@@ -37,7 +37,7 @@
     var n = Math.round((U.parse(ds) - U.today()) / 86400000);
     if (n === 0) return '今日';
     if (n === 1) return '明日';
-    if (n > 0) return 'あと' + n + '日';
+    if (n > 0) return '後' + n + '日';
     return (-n) + '日前';
   }
   /** 次の土曜（日曜なら今日）。遊ぶ日を選ぶ窓のはじめの日 */
@@ -102,7 +102,7 @@
     var n = opt.notes != null ? opt.notes : notesOf(w.id).length;
     var bits = [];
     if (opt.date && w.date) bits.push(U.short(w.date));
-    if (w.time) bits.push(w.time + 'ごろ');
+    if (w.time) bits.push(w.time + '頃');
     if (w.area) bits.push(w.area);
     if (w.cost) bits.push(w.cost);
     if (n) bits.push('書き足し' + n + '件');
@@ -476,7 +476,7 @@
         + (sub ? '<span class="ps">' + U.esc(sub) + '</span>' : '') + '</span></label>';
     }
     function sub(w, withDate) {
-      return [withDate && w.date ? U.short(w.date) + 'に決めている' : '', w.time ? w.time + 'ごろ' : '', w.area, w.cost]
+      return [withDate && w.date ? U.short(w.date) + 'に決めている' : '', w.time ? w.time + '頃' : '', w.area, w.cost]
         .filter(Boolean).join('　');
     }
     function listHtml() {

@@ -414,7 +414,7 @@
     list.forEach(function (it) {
       var e = it.rec, k = kindOf(e);
       var cnt = countLabel(e, it.date);
-      var when = it.going ? KINDS[k] + '中' : it.left === 0 ? '今日' : it.left === 1 ? '明日' : 'あと' + it.left + '日';
+      var when = it.going ? KINDS[k] + '中' : it.left === 0 ? '今日' : it.left === 1 ? '明日' : '後' + it.left + '日';
       var sub = it.going ? (daysBetween(e.start, today) + 1) + '日目　' + U.short(e.end || e.start) + 'まで' : U.label(it.date);
       if (dayCount(e, today)) sub += '　今日で' + dayCount(e, today);       // 記念日からの日数
       h += '<button type="button" class="soonrow k-' + k + (it.going || it.left === 0 ? ' now' : '') + '" data-ev="' + e.id + '">'
@@ -647,7 +647,7 @@
         + '<span class="until" id="f-until-wrap"' + (draft.repeat ? '' : ' hidden') + '>'
           + '<label for="f-until">いつまで</label><input type="date" id="f-until" value="' + draft.until + '"></span>'
       + '</div>'
-      + (tpl ? '<div class="hint" style="margin:6px 0 0">もとの予定を写しました。日付を選び直して保存してください</div>' : '')
+      + (tpl ? '<div class="hint" style="margin:6px 0 0">元の予定を写しました。日付を選び直して保存してください</div>' : '')
       + '<button type="button" class="summary" id="f-toggle" aria-expanded="' + openMore + '">'
         + '<span id="f-sum">' + U.esc(summary()) + '</span><span class="chev">詳しく</span></button>'
       + '<div id="f-more"' + (openMore ? '' : ' hidden') + '>'
@@ -769,6 +769,12 @@
           if (!confirm('共有をやめると、相手の画面からこの予定が消えます。よろしいですか？')) return;
           Store.remove('event', e.id);   // 相手側から消す
           delete rec.id;                 // 自分の端末だけに作り直す
+        }
+        // 逆（自分だけ → 2人）も別の id で作り直す（2026-11-24）。自分だけの予定を自分の端末どうしで同じにしているとき、
+        // 前の id のまま共有にすると、サーバーに暗号の写し（自分だけ）と共有の行が同じ id で2つ残り、取り込む順番で入れ替わってしまうため
+        if (!isNew && e.scope === 'private' && rec.scope === 'shared') {
+          Store.remove('event', e.id);   // 自分だけの方は消す（自分の端末どうしで同じにしていれば、ほかの端末からも消える）
+          delete rec.id;
         }
         var saved = Store.put('event', rec);
         // 毎年の予定は、はじめの日ではなく「いま見ている日」か「次に来る日」を選ぶ（何年も前へ飛ばないように）

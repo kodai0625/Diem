@@ -1,7 +1,10 @@
 /* Diem データの入れ物
    ・すべて端末の localStorage に持ちます（電波がなくても入力できます）
    ・「2人で共有」の予定・立替金・やりたいことだけが送信箱に積まれ、あとでサーバーへ送られます
-   ・「自分だけ」の予定は送信箱に入れません。端末の外へは出ません */
+   ・「自分だけ」の予定は送信箱に入れません。端末の外へは出ません
+     ★例外（2026-11-24）：自分の端末どうしで同じにする仕組み（PB.Mine）が入っていて、自分の合言葉が決まっているときだけ、
+       自分だけの予定も送信箱に積む。送るときは sync.js が必ず暗号にしてから送る（暗号にできなければ送らない）。
+       この仕組みは私用にだけ入る。配布用には PB.Mine が無いので、今までどおり端末の外へは出ない */
 (function (global) {
   'use strict';
 
@@ -79,8 +82,10 @@
   }
 
   function isLocalOnly(kind, rec) {
-    return kind === 'event' && rec && rec.scope === 'private';
+    return kind === 'event' && rec && rec.scope === 'private' && !mineOn();
   }
+  /** 自分だけの予定を、暗号にして自分の端末どうしで同じにしているか（上の例外） */
+  function mineOn() { return !!(global.PB && global.PB.Mine && global.PB.Mine.on()); }
 
   function queue(kind, id) {
     for (var i = 0; i < meta.outbox.length; i++) {
@@ -181,7 +186,9 @@
         rec.id = row.id;
         rec.updatedAt = Number(row.updatedAt) || Date.now();
         if (row.deleted) rec.deleted = true;
-        if (rec.scope === 'private') rec.scope = 'shared'; // 共有に載ったものは共有として扱う
+        // 共有に載ったものは共有として扱う。ただし、自分の端末から暗号で届いた自分だけの予定（row.mine）は自分だけのまま
+        if (row.mine) rec.scope = 'private';
+        else if (rec.scope === 'private') rec.scope = 'shared';
         var old = data[row.kind][row.id];
         if (row.kind === 'event') {
           if (rec.deleted) {
@@ -201,6 +208,12 @@
     },
 
     setSince: function (now) { meta.since = now; meta.lastSyncAt = Date.now(); saveMeta(); },
+
+    /** 送信箱から、送れない記録（端末の中だけの、自分だけの予定）を外す。自分の端末どうしで同じにするのをやめたときに使う */
+    dropLocalFromOutbox: function () {
+      meta.outbox = meta.outbox.filter(function (o) { return !isLocalOnly(o.kind, (data[o.kind] || {})[o.id]); });
+      saveMeta();
+    },
 
     /* ---------------- 新着のしるし（相手が足した・直した予定） ---------------- */
 

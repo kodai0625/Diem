@@ -131,9 +131,11 @@
 
     if (PB.Extra) h += PB.Extra.settingsHtml();   // 追加の機能があれば、その設定の欄
 
+    // 自分の端末どうしで同じにする仕組み（PB.Mine。私用だけ）が入っていれば、この欄はそちらが書く
     h += '<div class="secttl">自分だけの予定</div><div class="card">'
-      + '<div class="note">「自分だけ」の予定は <b>' + priv + '件</b>。相手には見えず、サーバーにも送られません。'
-      + 'その分、この端末のデータが消えると戻せません。時々下の「控えを書き出す」を押してください。</div>'
+      + (PB.Mine ? PB.Mine.settingsHtml(priv)
+        : '<div class="note">「自分だけ」の予定は <b>' + priv + '件</b>。相手には見えず、サーバーにも送られません。'
+          + 'その分、この端末のデータが消えると戻せません。時々下の「控えを書き出す」を押してください。</div>')
       + '</div>';
 
     h += '<div class="secttl">控え</div><div class="card">'
@@ -199,6 +201,10 @@
     };
 
     if (PB.Extra) PB.Extra.bindSettings(body);    // 追加の機能の押しどころ
+    if (PB.Mine) PB.Mine.bindSettings(body, {
+      rerender: function () { renderSettings(); paintSync(); PB.Cal.render(); },
+      connected: function () { return !!effectiveUrl() && !!m.pin; }
+    });
 
     body.querySelector('#s-out').onclick = function () {
       var text = Store.exportAll();
@@ -260,7 +266,7 @@
   /* ---------- はじめの設定 ---------- */
   function firstRun() {
     var askPin = !!effectiveUrl() && !Store.meta().pin;
-    modal('<h2>はじめに</h2>'
+    modal('<h2>初めに</h2>'
       + '<div class="hint">名前は、予定や立替金を「誰が入れたか」見分けるのに使います。後から設定で直せます</div>'
       + '<div class="f"><label>あなたの名前</label><input type="text" id="n-me" placeholder="例）こうだい"></div>'
       + '<div class="f"><label>一緒に使う人の名前</label><input type="text" id="n-you" placeholder="例）あいて"></div>'
@@ -268,7 +274,7 @@
           ? '<div class="f"><label>合言葉（PIN）</label><input type="text" id="n-pin" placeholder="2人で決めたもの" autocapitalize="off" autocorrect="off" spellcheck="false"></div>'
             + '<div class="hint">入れると相手と予定を分け合えます。空のままでも、この端末だけで全部使えます</div>'
           : '')
-      + '<div class="acts"><button type="button" class="go" id="n-go">はじめる</button></div>', function (root) {
+      + '<div class="acts"><button type="button" class="go" id="n-go">始める</button></div>', function (root) {
         root.querySelector('#n-go').onclick = function () {
           var me = root.querySelector('#n-me').value.trim() || '自分';
           var you = root.querySelector('#n-you').value.trim() || '相手';

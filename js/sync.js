@@ -62,6 +62,47 @@
 
   function post(payload) { return request(url(), payload); }
 
+  /* ---------- 自分だけの予定を、自分の端末どうしで同じにする（2026-11-24。私用だけ） ----------
+     ・送信箱に自分だけの予定が入っているのは、PB.Mine が入っていて自分の合言葉が決まっているときだけ（store.js の isLocalOnly）
+     ・★自分だけの予定は、ここで必ず暗号にしてから送る。種類は 'mine' にする（相手のアプリは知らない種類なので受け取っても捨てる）。
+       PB.Mine が無い・暗号にできないときは、送る分から外す（決してそのままの形では送らない）
+     ・受け取った 'mine' は、自分の合言葉で開けたものだけを自分だけの予定に戻す。開けないもの（合言葉が違う等）は捨てる */
+  function isPrivate(op) { return op.kind === 'event' && op.rec && op.rec.scope === 'private'; }
+
+  function sealOps(ops) {
+    var plain = ops.filter(function (o) { return !isPrivate(o); });
+    var priv = ops.filter(isPrivate);
+    var Mine = global.PB && global.PB.Mine;
+    if (!priv.length || !Mine || !Mine.on()) return Promise.resolve(plain);
+    return Promise.all(priv.map(function (o) { return Mine.seal(o.id, o.rec); })).then(function (sealed) {
+      return plain.concat(sealed.map(function (rec, i) { return { kind: 'mine', id: priv[i].id, rec: rec }; }));
+    }).catch(function () { return plain; });
+  }
+
+  /** 送れた分の知らせを、手元の種類に戻す（'mine' → 'event'）。送信箱は手元の種類で持っているため */
+  function backToEvent(applied) {
+    return (applied || []).map(function (a) {
+      return a.kind === 'mine' ? { kind: 'event', id: a.id, updatedAt: a.updatedAt } : a;
+    });
+  }
+
+  function openRows(rows) {
+    var Mine = global.PB && global.PB.Mine;
+    var mine = rows.filter(function (r) { return r.kind === 'mine'; });
+    var rest = rows.filter(function (r) { return r.kind !== 'mine'; });
+    if (!mine.length || !Mine || !Mine.on()) return Promise.resolve(rest);
+    return Promise.all(mine.map(function (r) {
+      return Mine.open(r.id, r.json).catch(function () { return null; });
+    })).then(function (recs) {
+      recs.forEach(function (rec, i) {
+        if (!rec) return;
+        var r = mine[i];
+        rest.push({ kind: 'event', id: r.id, json: JSON.stringify(rec), updatedAt: r.updatedAt, by: r.by, deleted: r.deleted, mine: true });
+      });
+      return rest;
+    });
+  }
+
   var Sync = {
     setStore: function (s) { Store = s; },
 
@@ -86,18 +127,22 @@
       Sync.onChange && Sync.onChange();
 
       var m = Store.meta();
-      var ops = Store.outboxPayload();
 
-      var step = ops.length
-        ? post({ pin: pin(), action: 'push', by: m.me || '', ops: ops })
-            .then(function (res) { Store.outboxDone(res.applied || []); return res; })
-        : Promise.resolve(null);
+      var step = sealOps(Store.outboxPayload()).then(function (ops) {
+        if (!ops.length) return null;
+        return post({ pin: pin(), action: 'push', by: m.me || '', ops: ops })
+          .then(function (res) { Store.outboxDone(backToEvent(res.applied)); return res; });
+      });
 
+      var now = 0;
       return step.then(function () {
         return post({ pin: pin(), action: 'pull', since: Store.meta().since || 0 });
       }).then(function (res) {
-        var n = Store.applyRows(res.rows || []);
-        Store.setSince(res.now);
+        now = res.now;
+        return openRows(res.rows || []);
+      }).then(function (rows) {
+        var n = Store.applyRows(rows);
+        Store.setSince(now);
         Sync.lastError = '';
         busy = false;
         Sync.onChange && Sync.onChange();

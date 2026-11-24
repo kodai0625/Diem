@@ -75,7 +75,7 @@
   filter:drop-shadow(0 8px 16px rgba(15,29,49,.10));
 }
 /* 両はしの列にも縦の線を引く（2026-10-21。ko-dai さん「各曜日の横幅を揃えて」）。
-   升目は7列とも同じ幅だが、額縁の内側の余白（13px）との境に線が無く、日曜と土曜の列だけ余白ぶん広く見えていた */
+   升目は7列とも同じ幅だが、額縁の内側の余白（13px）との境に線が無く、日曜と土曜の列だけ余白の分だけ広く見えていた */
 .cell:first-child,.cell.today:first-child{border-left:1px solid var(--line)}
 .cell:last-child{border-right:1px solid var(--line)}
 .week:first-child{border-top:1px solid var(--line)}      /* 上と下も閉じて、額縁の中に1枚の表として見せる */

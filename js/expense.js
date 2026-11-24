@@ -104,7 +104,7 @@
 
     h += '<div class="sum">'
       + '<div class="box"><div class="k">立て替えた合計</div><div class="v">' + U.yen(r.total) + '</div></div>'
-      + '<div class="box"><div class="k">1人あたり</div><div class="v">' + U.yen(perHead) + '</div></div>'
+      + '<div class="box"><div class="k">1人当たり</div><div class="v">' + U.yen(perHead) + '</div></div>'
       + '</div>';
 
     h += '<div class="secttl">精算</div><div class="card">';
