@@ -414,7 +414,7 @@
     list.forEach(function (it) {
       var e = it.rec, k = kindOf(e);
       var cnt = countLabel(e, it.date);
-      var when = it.going ? KINDS[k] + '中' : it.left === 0 ? '今日' : it.left === 1 ? '明日' : '後' + it.left + '日';
+      var when = it.going ? KINDS[k] + '中' : it.left === 0 ? '今日' : it.left === 1 ? '明日' : 'あと' + it.left + '日';   // 残りの意味の「あと」はひらがな
       var sub = it.going ? (daysBetween(e.start, today) + 1) + '日目　' + U.short(e.end || e.start) + 'まで' : U.label(it.date);
       if (dayCount(e, today)) sub += '　今日で' + dayCount(e, today);       // 記念日からの日数
       h += '<button type="button" class="soonrow k-' + k + (it.going || it.left === 0 ? ' now' : '') + '" data-ev="' + e.id + '">'

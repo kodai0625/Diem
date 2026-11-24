@@ -37,7 +37,7 @@
     var n = Math.round((U.parse(ds) - U.today()) / 86400000);
     if (n === 0) return '今日';
     if (n === 1) return '明日';
-    if (n > 0) return '後' + n + '日';
+    if (n > 0) return 'あと' + n + '日';   // 残りの意味の「あと」はひらがな
     return (-n) + '日前';
   }
   /** 次の土曜（日曜なら今日）。遊ぶ日を選ぶ窓のはじめの日 */
