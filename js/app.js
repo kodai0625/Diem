@@ -51,7 +51,7 @@
     busy: '<path d="M18.6 9A7 7 0 1 0 19 13.4"/><path d="M19.2 4.6v4.6h-4.6"/>'
   };
   function syncWords(s) {
-    var text = { off: '端末の中だけ', busy: '同期中', pending: '未送信 ' + s.pending + '件', error: '送れません', ok: '同期ずみ' }[s.kind];
+    var text = { off: '端末の中だけ', busy: '同期中', pending: '未送信 ' + s.pending + '件', error: '送れません', ok: '同期済み' }[s.kind];
     if (s.kind === 'ok' && s.at) {
       var d = new Date(s.at);
       text += ' ' + U.pad(d.getHours()) + ':' + U.pad(d.getMinutes());
@@ -118,10 +118,10 @@
 
     h += '<div class="secttl">共有</div><div class="card">'
       + '<div class="setrow"><div><div class="k">つなぎ先</div><div class="d">'
-      + (effectiveUrl() ? (m.syncUrl ? '設定ずみ' : 'アプリに入っているものを使っています') : '未設定（いまは端末の中だけ）')
+      + (effectiveUrl() ? (m.syncUrl ? '設定済み' : 'アプリに入っているものを使っています') : '未設定（今は端末の中だけ）')
       + '</div></div>'
       + '<button type="button" class="mini" id="s-url">直す</button></div>'
-      + '<div class="setrow"><div><div class="k">合言葉（PIN）</div><div class="d">' + (m.pin ? '設定ずみ' : '未設定') + '</div></div>'
+      + '<div class="setrow"><div><div class="k">合言葉（PIN）</div><div class="d">' + (m.pin ? '設定済み' : '未設定') + '</div></div>'
       + '<button type="button" class="mini" id="s-pin">直す</button></div>'
       + '<div class="setrow"><div><div class="k">送っていない記録</div><div class="d">電波がない間の入力はここに溜まります</div></div>'
       + '<div style="display:flex;gap:8px;align-items:center"><b style="white-space:nowrap">' + m.outbox.length + '件</b>'
@@ -133,7 +133,7 @@
 
     h += '<div class="secttl">自分だけの予定</div><div class="card">'
       + '<div class="note">「自分だけ」の予定は <b>' + priv + '件</b>。相手には見えず、サーバーにも送られません。'
-      + 'その分、この端末のデータが消えると戻せません。ときどき下の「控えを書き出す」を押してください。</div>'
+      + 'その分、この端末のデータが消えると戻せません。時々下の「控えを書き出す」を押してください。</div>'
       + '</div>';
 
     h += '<div class="secttl">控え</div><div class="card">'
@@ -219,7 +219,7 @@
 
     body.querySelector('#s-in').onclick = function () {
       modal('<h2>控えから戻す</h2>'
-        + '<div class="hint">書き出した文字を貼り付けてください。いまのデータと合わせます（新しい方を残します）</div>'
+        + '<div class="hint">書き出した文字を貼り付けてください。今のデータと合わせます（新しい方を残します）</div>'
         + '<div class="f"><textarea id="i-text" style="min-height:200px;font-size:11px" placeholder="ここに貼り付け"></textarea></div>'
         + '<div class="acts"><button type="button" id="i-cancel">やめる</button>'
         + '<button type="button" class="go" id="i-go">戻す</button></div>', function (root) {
@@ -261,7 +261,7 @@
   function firstRun() {
     var askPin = !!effectiveUrl() && !Store.meta().pin;
     modal('<h2>はじめに</h2>'
-      + '<div class="hint">名前は、予定や立替金を「誰が入れたか」見分けるのに使います。あとから設定で直せます</div>'
+      + '<div class="hint">名前は、予定や立替金を「誰が入れたか」見分けるのに使います。後から設定で直せます</div>'
       + '<div class="f"><label>あなたの名前</label><input type="text" id="n-me" placeholder="例）こうだい"></div>'
       + '<div class="f"><label>一緒に使う人の名前</label><input type="text" id="n-you" placeholder="例）あいて"></div>'
       + (askPin
@@ -320,7 +320,7 @@
     // 右上の印を押すと、いまの様子を言葉で出して、その場で同期する
     document.getElementById('syncBar').onclick = function () {
       var s = Sync.state();
-      if (s.kind === 'off') { toast('いまは端末の中だけです（設定で共有をつなげます）'); return; }
+      if (s.kind === 'off') { toast('今は端末の中だけです（設定で共有をつなげます）'); return; }
       if (s.kind === 'busy') { toast('同期しています…'); return; }
       toast(syncWords(s) + '　同期しています…');
       Sync.run(true).then(function () { toast('同期しました'); })

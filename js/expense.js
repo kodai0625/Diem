@@ -98,7 +98,7 @@
     if (!r.exps.length && !r.sets.length) {
       body.innerHTML = '<div class="card"><div class="empty">'
         + '立て替えて払ったら、右下の ＋ から記録してください。<br>'
-        + 'あとで「誰が誰へいくら返すか」を計算します</div></div>';
+        + '後で「誰が誰へいくら返すか」を計算します</div></div>';
       return;
     }
 
@@ -182,7 +182,7 @@
 
   /* ---------- 返した ---------- */
   function payBack(move) {
-    var msg = move.from + ' → ' + move.to + ' に ' + U.yen(move.amount) + ' 返しましたか？\n（一部だけ返したときは、あとで金額を直せます）';
+    var msg = move.from + ' → ' + move.to + ' に ' + U.yen(move.amount) + ' 返しましたか？\n（一部だけ返したときは、後で金額を直せます）';
     if (!confirm(msg)) return;
     Store.put('settle', { from: move.from, to: move.to, amount: move.amount, date: U.ymd(U.today()) });
     render(); PB.App.refreshSync();

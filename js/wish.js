@@ -207,7 +207,7 @@
     }
     return '<div class="wplanrow"><label class="k" for="w-date">行く日</label>'
       + '<input type="date" id="w-date" value="' + (w.date || '') + '">'
-      + (w.date ? '<span class="wtime"><label for="w-time">何時ごろ</label><input type="time" id="w-time" value="' + (w.time || '') + '"></span>' : '')
+      + (w.date ? '<span class="wtime"><label for="w-time">何時頃</label><input type="time" id="w-time" value="' + (w.time || '') + '"></span>' : '')
       + '</div>'
       + '<div class="wplanhint">'
       + (w.date
@@ -388,13 +388,13 @@
         + '<span>場所・URL・行く日など</span><span class="chev">詳しく</span></button>'
       + '<div id="w-more"' + (openMore ? '' : ' hidden') + '>'
         + '<div class="f f2"><div><label>エリア</label><input type="text" id="w-area" value="' + U.esc(w.area) + '" placeholder="例）栄・京都"></div>'
-          + '<div><label>費用のめやす</label><input type="text" id="w-cost" value="' + U.esc(w.cost) + '" placeholder="例）1人3000円"></div></div>'
+          + '<div><label>費用の目安</label><input type="text" id="w-cost" value="' + U.esc(w.cost) + '" placeholder="例）1人3000円"></div></div>'
         + '<div class="f"><label>場所（店の名前や住所。地図で開けます）</label><input type="text" id="w-place" value="' + U.esc(w.place) + '"></div>'
         + '<div class="f"><label>参考のURL</label><input type="url" id="w-url" value="' + U.esc(w.url) + '" placeholder="https://" autocapitalize="off" autocorrect="off" spellcheck="false"></div>'
         + (w.done ? '' : '<div class="f f2"><div><label>行く日</label><input type="date" id="w-date" value="' + (w.date || '') + '"></div>'
-          + '<div><label>何時ごろ</label><input type="time" id="w-time" value="' + (w.time || '') + '"></div></div>')
+          + '<div><label>何時頃</label><input type="time" id="w-time" value="' + (w.time || '') + '"></div></div>')
         + '<div class="f"><label>メモ</label><textarea id="w-memo" placeholder="なぜ行きたいか、気になっていることなど">' + U.esc(w.memo) + '</textarea></div>'
-        + '<div class="hint">あとから分かったことは、開いて「書き足す」で何件でも足せます（2人とも書けます）</div>'
+        + '<div class="hint">後から分かったことは、開いて「書き足す」で何件でも足せます（2人とも書けます）</div>'
       + '</div>'
       + '<div class="acts">'
         + (isNew ? '' : '<button type="button" class="del" id="w-del">消す</button>')
@@ -489,7 +489,7 @@
       var other = c.filter(function (w) { return w.date && w.date !== date; })
         .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : byPlan(a, b); });
       var h = '';
-      [['この日にやること', here, false], ['まだ決めていないもの', free, false], ['ほかの日に決めているもの', other, true]].forEach(function (g) {
+      [['この日にやること', here, false], ['まだ決めていないもの', free, false], ['他の日に決めているもの', other, true]].forEach(function (g) {
         if (!g[1].length) return;
         h += '<div class="secttl">' + g[0] + '</div><div class="card">';
         g[1].forEach(function (w) { h += item(w, sub(w, g[2])); });

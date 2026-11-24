@@ -438,7 +438,7 @@
     var h = '<div class="freshbox"><div class="freshttl"><b>' + U.esc(Who.partner()) + 'さんからの新着</b><span>' + list.length + '件</span>'
       + '<button type="button" class="mini" id="freshSeen">全部見た</button></div>';
     list.slice(0, 6).forEach(function (it) { h += '<div class="sdate">' + U.esc(dateWords(it.date, today)) + '</div>' + rowHtml(it.rec, it.date); });
-    if (list.length > 6) h += '<div class="hint" style="margin:0 4px 6px">ほか' + (list.length - 6) + '件</div>';
+    if (list.length > 6) h += '<div class="hint" style="margin:0 4px 6px">他' + (list.length - 6) + '件</div>';
     return h + '</div>';
   }
 
@@ -480,7 +480,7 @@
         html += '<div class="sdate">' + U.esc(dateWords(h.date, today)) + (holiday(h.date) ? '　' + U.esc(holiday(h.date)) : '') + '</div>'
           + rowHtml(h.rec, h.date);
       });
-      if (g[1].length > 60) html += '<div class="hint" style="margin:0 4px 6px">ほか' + (g[1].length - 60) + '件。言葉を足すと絞れます</div>';
+      if (g[1].length > 60) html += '<div class="hint" style="margin:0 4px 6px">他' + (g[1].length - 60) + '件。言葉を足すと絞れます</div>';
     });
     return html;
   }
@@ -631,14 +631,14 @@
         + '<button type="button" data-v="private"' + (draft.scope === 'private' ? ' class="on"' : '') + '><i class="dot mine"></i>自分だけ</button>'
       + '</div>'
       + '<div class="seg kinds" id="f-kind" aria-label="予定の種類">'
-        + '<button type="button" data-v=""' + (!draft.kind ? ' class="on"' : '') + '>ふつう</button>'
+        + '<button type="button" data-v=""' + (!draft.kind ? ' class="on"' : '') + '>普通</button>'
         + ['anniv', 'birth', 'trip'].map(function (k) {
             return '<button type="button" data-v="' + k + '"' + (draft.kind === k ? ' class="on"' : '') + '>'
               + '<i class="kicon k-' + k + '"></i>' + KINDS[k] + '</button>';
           }).join('')
       + '</div>'
       + '<div class="reprow">'
-        + '<label for="f-repeat">くり返し</label>'
+        + '<label for="f-repeat">繰り返し</label>'
         + '<select id="f-repeat">'
           + [['', 'しない'], ['week', '毎週'], ['month', '毎月'], ['year', '毎年']].map(function (o) {
               return '<option value="' + o[0] + '"' + (draft.repeat === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
@@ -659,7 +659,7 @@
           + '<div><label>終わる時刻</label><input type="time" id="f-et" value="' + (draft.et || '') + '"></div></div>'
         + '<div class="f"><label>メモ</label><textarea id="f-memo" placeholder="場所や持ち物など">' + U.esc(draft.memo) + '</textarea></div>'
         + '<div class="hint">「自分だけ」は相手に見えません。この端末の中だけに残ります。'
-          + 'くり返す予定は1日だけのものになり、直すと全部の回が変わります。「いつまで」が空なら、ずっと続きます</div>'
+          + '繰り返す予定は1日だけのものになり、直すと全部の回が変わります。「いつまで」が空なら、ずっと続きます</div>'
       + '</div>'
       + '<div class="acts">'
         + (isNew ? '' : '<button type="button" class="del" id="f-del">消す</button>')
@@ -723,7 +723,7 @@
 
       var del = $('#f-del');
       if (del) del.onclick = function () {
-        if (!confirm(repOf(e) ? 'くり返しの予定です。全部の回を消します。よろしいですか？' : 'この予定を消しますか？')) return;
+        if (!confirm(repOf(e) ? '繰り返しの予定です。全部の回を消します。よろしいですか？' : 'この予定を消しますか？')) return;
         Store.remove('event', e.id);
         PB.App.closeModal(); render(); PB.App.refreshSync();
         PB.App.toast('消しました');
